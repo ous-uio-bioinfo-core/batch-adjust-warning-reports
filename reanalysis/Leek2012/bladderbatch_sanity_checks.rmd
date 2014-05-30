@@ -1,5 +1,4 @@
 
-
 Sanity check for ComBat in BladderBatch tutorial.
 ========================================================
 
@@ -64,65 +63,6 @@ qValuesComBat = p.adjust(pValuesComBat,method="BH")
 hist(pValuesComBat,  main="P-values, Random numbers", breaks=100, xlab="p-value")
 ```
 
-
-
-## Permuted Group Labels
-
-
-```{r}
-source("../../commonscripts/helper_functions.r")
-nshuffleddatasets = 10
-datamatrices_permuted = list()
-labelschanged = vector()
-permuted_pvalcounts=list()
-for(i in 1:nshuffleddatasets)
-{
-  permutedlabels = shufflesamplesinbatch( rownames(pheno), pheno$batch, pheno$cancer )
-  labelschanged = c(labelschanged,  sum(pheno$cancer != pheno[permutedlabels,"cancer"]  ))
-  permuteddata = exprs(bladderEset)[,permutedlabels]
-  adjusteddata = as.matrix(ComBat(dat=permuteddata, 
-                                  batch= pheno$batch, 
-                                  mod=model.matrix(~as.factor(pheno$cancer)),  
-                                  numCovs=NULL, 
-                                  par.prior=TRUE, 
-                                  prior.plots=FALSE))
-  this_p = f.pvalue(adjusteddata,mod,mod0)
-  permuted_pvalcounts[[i]] = hist(this_p, plot=FALSE, breaks=100)$counts
-}
-
-```
-
-
-```{r pvaluespermuted, dev='svg', fig.width=10, fig.height=10, tidy=FALSE}
-
-
-plot((1:20)/100, permuted_pvalcounts[[1]][1:20],
-     main=paste("P-values, real data permuted labels" ,sep=""),
-      xlab="p-value", ylab="Frequency", type="l", lwd=1, 
-      ylim=c(0, max(unlist( c(permuted_pvalcounts)))))
-for(i in 2:length(permuted_pvalcounts))
-{
-  lines((1:20)/100,permuted_pvalcounts[[i]][1:20])
-}
-
-```
-
-
-
-
-```{r pvaluesleeksva, dev='svg', fig.width=10, fig.height=5, tidy=FALSE}
-par(mfrow=c(1, 2))
-hist(pValuesComBat,  main="P-values, Random numbers", breaks=100, xlab="p-value")
-plot((1:20)/100, permuted_pvalcounts[[1]][1:20],
-     main=paste("P-values, real data permuted labels" ,sep=""),
-      xlab="p-value", ylab="Frequency", type="l", lwd=1, 
-      ylim=c(0, max(unlist( c(permuted_pvalcounts)))))
-for(i in 2:length(permuted_pvalcounts))
-{
-  lines((1:20)/100,permuted_pvalcounts[[i]][1:20])
-}
-
-```
 
 
 
