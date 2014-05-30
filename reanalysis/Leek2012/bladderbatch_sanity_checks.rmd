@@ -1,0 +1,161 @@
+
+
+Sanity check for ComBat in BladderBatch tutorial.
+========================================================
+
+```{r, results='hide', echo=FALSE}
+starttime = Sys.time()
+```
+`r as.character(starttime)`
+
+## Overview
+This small report aim to show that the application of ComBat as described in the user guide accompanying the R package sva presented in [Leek et al.](http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669) will lead to false results even for random data.
+
+Two sanity checks will be performed
+- Swapping real data with random numbers
+- Permute the group labels whitinh batches
+Except for the above alterations, the batch adjustment and analysis are performed as described in the BladderBatch tutorial with additional plots to assess the results.
+
+
+## Random Data
+
+```{r, results='hide',  message=FALSE, error=FALSE}
+library(sva)
+library(bladderbatch)
+data(bladderdata)
+library(pamr)
+library(limma)
+
+pheno = pData(bladderEset)
+edata = exprs(bladderEset)
+```
+
+
+Substitute the data with random numbers from a normal distribution.
+```{r}
+set.seed(100)
+edata[,] = rnorm(length(edata), mean=0, sd=1)
+```
+
+The phenotypes ("cancer" labels) are not evenly spread across batches. Some batches consists of only one type.
+```{r}
+print(table(pheno[,3:4]))
+```
+
+
+```{r, tidy=FALSE}
+
+mod0 = model.matrix(~1,data=pheno)
+
+batch = pheno$batch
+
+mod = model.matrix(~as.factor(cancer), data=pheno)
+
+combat_edata = ComBat(dat=edata, batch=batch, 
+                      mod=mod, numCovs=NULL, 
+                      par.prior=TRUE, prior.plots=FALSE)
+
+pValuesComBat = f.pvalue(combat_edata,mod,mod0)
+qValuesComBat = p.adjust(pValuesComBat,method="BH")
+
+```
+
+```{r, dev='svg', fig.width=8, fig.height=8}
+hist(pValuesComBat,  main="P-values, Random numbers", breaks=100, xlab="p-value")
+```
+
+
+
+## Permuted Group Labels
+
+
+```{r}
+source("../../commonscripts/helper_functions.r")
+nshuffleddatasets = 10
+datamatrices_permuted = list()
+labelschanged = vector()
+permuted_pvalcounts=list()
+for(i in 1:nshuffleddatasets)
+{
+  permutedlabels = shufflesamplesinbatch( rownames(pheno), pheno$batch, pheno$cancer )
+  labelschanged = c(labelschanged,  sum(pheno$cancer != pheno[permutedlabels,"cancer"]  ))
+  permuteddata = exprs(bladderEset)[,permutedlabels]
+  adjusteddata = as.matrix(ComBat(dat=permuteddata, 
+                                  batch= pheno$batch, 
+                                  mod=model.matrix(~as.factor(pheno$cancer)),  
+                                  numCovs=NULL, 
+                                  par.prior=TRUE, 
+                                  prior.plots=FALSE))
+  this_p = f.pvalue(adjusteddata,mod,mod0)
+  permuted_pvalcounts[[i]] = hist(this_p, plot=FALSE, breaks=100)$counts
+}
+
+```
+
+
+```{r pvaluespermuted, dev='svg', fig.width=10, fig.height=10, tidy=FALSE}
+
+
+plot((1:20)/100, permuted_pvalcounts[[1]][1:20],
+     main=paste("P-values, real data permuted labels" ,sep=""),
+      xlab="p-value", ylab="Frequency", type="l", lwd=1, 
+      ylim=c(0, max(unlist( c(permuted_pvalcounts)))))
+for(i in 2:length(permuted_pvalcounts))
+{
+  lines((1:20)/100,permuted_pvalcounts[[i]][1:20])
+}
+
+```
+
+
+
+
+```{r pvaluesleeksva, dev='svg', fig.width=10, fig.height=5, tidy=FALSE}
+par(mfrow=c(1, 2))
+hist(pValuesComBat,  main="P-values, Random numbers", breaks=100, xlab="p-value")
+plot((1:20)/100, permuted_pvalcounts[[1]][1:20],
+     main=paste("P-values, real data permuted labels" ,sep=""),
+      xlab="p-value", ylab="Frequency", type="l", lwd=1, 
+      ylim=c(0, max(unlist( c(permuted_pvalcounts)))))
+for(i in 2:length(permuted_pvalcounts))
+{
+  lines((1:20)/100,permuted_pvalcounts[[i]][1:20])
+}
+
+```
+
+
+
+
+### References
+
+
+Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
+
+Storey, J. D. and Tibshirani, R. (2003) Proc Natl Acad Sci U S A, 100, 9440-5.
+
+Leek JT, Johnson WE, Parker HS, Jaffe AE, Storey JD.(2012) The sva package for removing batch effects and other unwanted variation in high-throughput experiments. Bioinformatics. 2012 Mar 15;28(6):882-3.
+http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669
+
+Smyth, GK (2005). Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions
+  using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages
+  397-420.
+  
+  R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing,
+  Vienna, Austria. URL http://www.R-project.org/
+
+  Yihui Xie (2013). knitr: A general-purpose package for dynamic report generation in R. R package version 1.5.
+
+  Yihui Xie (2013) Dynamic Documents with R and knitr. Chapman and Hall/CRC. ISBN 978-1482203530
+
+  Yihui Xie (2013) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria Stodden, Friedrich Leisch and
+  Roger D. Peng, editors, Implementing Reproducible Computational Research. Chapman and Hall/CRC. ISBN 978-1466561595
+  
+  RStudio Team (2012). RStudio: Integrated Development for R. RStudio, Inc., Boston, MA URL http://www.rstudio.com/.
+
+
+```{r sessionInfo, comment=""}
+sessionInfo()
+```
+
+generation ended `r as.character(Sys.time())`. Time spent `r  as.integer(round(difftime(Sys.time(),starttime, units="mins")))` minutes .

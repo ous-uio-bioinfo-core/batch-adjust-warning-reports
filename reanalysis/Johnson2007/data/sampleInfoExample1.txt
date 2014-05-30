@@ -1,0 +1,13 @@
+Array Name	Time	Treatment	Batch
+123-1CON	0	Control	1
+123-2CON	7	Control	1
+123-3NO0	0	NO	1
+123-4NO7	7	NO	1
+126-1CON	0	Control	2
+126-2CON	7	Control	2
+126-3NO0	0	NO	2
+126-4NO7	7	NO	2
+CONTROL7	7	Control	3
+CONTROLZ	0	Control	3
+NO_7_5	7	NO	3
+NO_ZERO	0	NO	3
