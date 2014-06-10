@@ -4,7 +4,7 @@ Sanity check for ComBat in the SVA tutorial.
 
 
 
-2014-06-05 16:39:46
+2014-06-10 17:00:57
 
 ## Overview
 This small report aim to show that the application of ComBat as described in the [user guide](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) accompanying the R package [sva](http://www.bioconductor.org/packages/2.13/bioc/html/sva.html) presented in [Leek et al.](http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669) will lead to false results even for random data.
@@ -411,4 +411,4 @@ loaded via a namespace (and not attached):
 ```
 
 
-generation ended 2014-06-05 16:40:22. Time spent 1 minutes .
+generation ended 2014-06-10 17:01:35. Time spent 1 minutes .

@@ -288,7 +288,7 @@ hist(foldchange_DP_N[table_s5$Probe], breaks=100, add=T, freq=F, border=thiscolo
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 The first plot reveals that the reproduced fold changes are much more compressed than the ones in Table S5.
-There seems to two linear relationship, one for negative FC's and another for positive FC's. They seems to have different intercepts but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
+There seems to be two linear relationship, one for negative FC's and another for positive FC's. They seem to have different intercepts but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
 
 The fold changes in table 5S do not match the average expression values listed in table S2 either as a the same plot will show;
 
@@ -309,7 +309,7 @@ The rest of table S5 is p-values and we will try to reproduce the ones from limm
 
 > Next, we utilized Linear Models for Microarray (LIMMA) data analysis [23], [24] R package, part of the Bioconductor framework [25], to compare generic and GA samples, fitting a linear model that adjusts for fixed effect from medium (Effect = (GA-generic) – (generic-Medium)). The coefficients for the linear model were tested for significance using a modified t-test (taking into account standard deviation)...<cite> Towfic et al.
 
-The formula "Effect = (GA-generic) – (generic-Medium)" seems strange.
+The formula "Effect = (GA-generic) - (generic-Medium)" seems strange.
 
 ```{r dev='png', fig.width=10, fig.height=6, fig.show='hold', tidy=FALSE}
 group = factor(sampleannotation$covariate)
@@ -319,7 +319,7 @@ cont.matrix = makeContrasts ( contrasts="(groupDP-groupN) - (groupN-groupM)", le
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_org = eBayes(fit2)
 limma_p_org = limma_ret_org$p.value
-names(limma_p_org) = names(limma_ret_org$Amean)
+#names(limma_p_org) = names(limma_ret_org$Amean)
 par(mfrow=c(1, 2))
 plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
@@ -335,7 +335,7 @@ cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_alt = eBayes(fit2)
 limma_p_alt = limma_ret_alt$p.value
-names(limma_p_alt) = names(limma_ret_alt$Amean)
+#names(limma_p_alt) = names(limma_ret_alt$Amean)
 par(mfrow=c(1, 2))
 plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
@@ -346,7 +346,7 @@ legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolor
 ```
 The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report since they showed a similar pattern as for the limma p-values.
 
-This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The fold changes and p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
+This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
 
 
 
