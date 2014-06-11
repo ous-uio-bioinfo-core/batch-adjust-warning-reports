@@ -4,13 +4,13 @@ Sanity check for ComBat in the SVA tutorial.
 
 
 
-2014-06-10 17:00:57
+2014-06-11 14:11:11
 
 ## Overview
 This small report aim to show that the application of ComBat as described in the [user guide](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) accompanying the R package [sva](http://www.bioconductor.org/packages/2.13/bioc/html/sva.html) presented in [Leek et al.](http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669) will lead to false results even for random data.
 
 One sanity checks will be performed
-- Swapping real data with random numbers including a batch effect.
+- Swapping real data with random numbers with a batch effect.
 
 The rest of the tutorial will be performed with a few extra plots of the p-value distributions from the different analyses.
 
@@ -20,7 +20,6 @@ Most code are taken directly from the vignette source 'vignettes/sva/inst/doc/sv
 ```r
 
 options(width = 65)
-
 library(sva)
 ```
 
@@ -98,7 +97,6 @@ library(limma)
 ```r
 
 pheno = pData(bladderEset)
-
 edata = exprs(bladderEset)
 ```
 
@@ -155,7 +153,7 @@ hist(pValues, breaks = 100)
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.svg) 
 
-The above plot is from p-values calculated when batch is ignored, i.e the included batch effect acts a confounder.
+The above plot is from p-values calculated when batch is ignored, i.e the included batch effect acts as a confounder.
 
 
 
@@ -251,7 +249,7 @@ hist(pValuesComBat, breaks = 100)
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.svg) 
 
-The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and a lot of genes would falsely been reported as differentially  expressed.
+The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and a lot of genes would falsely have been reported as differentially  expressed.
 
 The next example is described as a simplified version of ComBat.
 
@@ -411,4 +409,4 @@ loaded via a namespace (and not attached):
 ```
 
 
-generation ended 2014-06-10 17:01:35. Time spent 1 minutes .
+generation ended 2014-06-11 14:11:47. Time spent 1 minutes .

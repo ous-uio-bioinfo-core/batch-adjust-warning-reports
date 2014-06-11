@@ -1,7 +1,7 @@
 Partial reproduction and alternative analysis of "Comparing the Biological Impact of Glatiramer Acetate with the Biological Impact of a Generic"
 ========================================================
 
-2014-05-23 23:19:35
+2014-06-11 16:02:41
 
 ### Overview
 This report aims to show that the use of the statistical tool ComBat from [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) led to false results in the analysis performed in [Towfic et al.'s ](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0083757) "Comparing the Biological Impact of Glatiramer Acetate with the Biological Impact of a Generic".
@@ -26,13 +26,6 @@ This document has five main parts
 ```r
 includelibs = c("Biobase", "GEOquery", "sva", "limma", "preprocessCore", "statmod")
 lapply(includelibs, require, character.only = T)
-```
-
-```
-## Warning: package 'statmod' was built under R version 3.0.3
-```
-
-```r
 source("../../commonscripts/helperfunctions.r")
 source("helperfunctions_towfic.r")
 ```
@@ -42,7 +35,7 @@ The above libraries and helper script files are needed in order to reproduce thi
 ### Getting the data
 
 The important sample information is described in Table S1 from Towfic et al. and its usage in ComBat is described briefly in the methods;
->  Each microarrays chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard) were added as covariates.<cite> Towfic et al.
+>  Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates.<cite> Towfic et al.
 
 Table S1 does have a "Chip"- column, unfortunately there is no dedicated "treatment"-column.
 Communication with the corresponding author yielded this explanation
@@ -293,7 +286,7 @@ table_s5$Fold_Change = as.numeric(table_s5$Fold_Change)
 
 Towfic et al. performed many different test on the data and it is outside the scope of this report to reproduce all of their results. We focus on the key part of testing for differentially expressed genes between "GA" (DP) and "generic"(N) as described in Table S2 and Table S5. But before those tests we have to preprocess according to the description.
 
-> Starting with background-corrected bead-level signals, we quantile normalized the extracted data for all samples across all 46,547 probes via the preprocessCore package in R.
+> Starting with background-corrected bead-level signals, we quantile normalized the extracted data for all samples across all 46,547 probes via the “preprocessCore” package in R.
 
 
 ```r
@@ -308,7 +301,7 @@ dimnames(datamatrices[["real_qnorm"]]) = dimnames(datamatrices[["real_raw"]])
 ```
 
 
-> We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarrays chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard) were added as covariates. 
+> We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates. 
 
 
 ```r
@@ -457,7 +450,7 @@ legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolor
 ![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
 
 The first plot reveals that the reproduced fold changes are much more compressed than the ones in Table S5.
-There seems to two linear relationship, one for negative FC's and another for positive FC's. They seems to have different intercepts but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
+There seems to be two linear relationship, one for negative FC's and another for positive FC's. They seem to have different intercepts but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
 
 The fold changes in table 5S do not match the average expression values listed in table S2 either as a the same plot will show;
 
@@ -480,9 +473,9 @@ There seems to be some inconsistency between between the fold changes in table S
 
 The rest of table S5 is p-values and we will try to reproduce the ones from limma.
 
-> Next, we utilized Linear Models for Microarray (LIMMA) data analysis [23], [24] R package, part of the Bioconductor framework [25], to compare generic and GA samples, fitting a linear model that adjusts for fixed effect from medium (Effect = (GA-generic)  (generic-Medium)). The coefficients for the linear model were tested for significance using a modified t-test (taking into account standard deviation)...<cite> Towfic et al.
+> Next, we utilized Linear Models for Microarray (LIMMA) data analysis [23], [24] R package, part of the Bioconductor framework [25], to compare generic and GA samples, fitting a linear model that adjusts for fixed effect from medium (Effect = (GA-generic) – (generic-Medium)). The coefficients for the linear model were tested for significance using a modified t-test (taking into account standard deviation)...<cite> Towfic et al.
 
-The formula "Effect = (GA-generic)  (generic-Medium)" seems strange.
+The formula "Effect = (GA-generic) - (generic-Medium)" seems strange.
 
 
 ```r
@@ -493,13 +486,13 @@ cont.matrix = makeContrasts ( contrasts="(groupDP-groupN) - (groupN-groupM)", le
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_org = eBayes(fit2)
 limma_p_org = limma_ret_org$p.value
-names(limma_p_org) = names(limma_ret_org$Amean)
+#names(limma_p_org) = names(limma_ret_org$Amean)
 par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe], xlab="Original Table S5", 
+plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe,], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
 thiscolors = c("black", "red")
 hist(limma_p_org, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
-hist(limma_p_org[table_s5$Probe], breaks=100, add=T, freq=T, border=thiscolors[2])
+hist(limma_p_org[table_s5$Probe,], breaks=100, add=T, freq=T, border=thiscolors[2])
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
@@ -513,13 +506,13 @@ cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_alt = eBayes(fit2)
 limma_p_alt = limma_ret_alt$p.value
-names(limma_p_alt) = names(limma_ret_alt$Amean)
+#names(limma_p_alt) = names(limma_ret_alt$Amean)
 par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe], xlab="Original Table S5", 
+plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe,], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
 thiscolors = c("black", "red")
 hist(limma_p_alt, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
-hist(limma_p_alt[table_s5$Probe], breaks=100, add=T, freq=T, border=thiscolors[2])
+hist(limma_p_alt[table_s5$Probe,], breaks=100, add=T, freq=T, border=thiscolors[2])
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
@@ -527,7 +520,7 @@ legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolor
 
 The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report since they showed a similar pattern as for the limma p-values.
 
-This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The fold changes and p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
+This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
 
 
 
@@ -780,32 +773,28 @@ sessionInfo()
 
 ```
 R version 3.0.2 (2013-09-25)
-Platform: x86_64-w64-mingw32/x64 (64-bit)
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
 
 locale:
-[1] LC_COLLATE=English_United States.1252 
-[2] LC_CTYPE=English_United States.1252   
-[3] LC_MONETARY=English_United States.1252
-[4] LC_NUMERIC=C                          
-[5] LC_TIME=English_United States.1252    
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
 attached base packages:
 [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 [8] base     
 
 other attached packages:
- [1] statmod_1.4.19        preprocessCore_1.24.0 limma_3.18.12        
- [4] sva_3.8.0             mgcv_1.7-28           nlme_3.1-113         
+ [1] statmod_1.4.19        preprocessCore_1.24.0 limma_3.18.13        
+ [4] sva_3.8.0             mgcv_1.7-29           nlme_3.1-117         
  [7] corpcor_1.6.6         GEOquery_2.28.0       Biobase_2.22.0       
 [10] BiocGenerics_0.8.0    knitr_1.5            
 
 loaded via a namespace (and not attached):
-[1] evaluate_0.5.1  formatR_0.10    grid_3.0.2      lattice_0.20-24
-[5] Matrix_1.1-2    RCurl_1.95-4.1  stringr_0.6.2   tools_3.0.2    
-[9] XML_3.98-1.1   
+[1] evaluate_0.5.5  formatR_0.10    grid_3.0.2      lattice_0.20-29
+[5] Matrix_1.1-3    RCurl_1.95-4.1  stringr_0.6.2   tools_3.0.2    
+[9] XML_3.95-0.2   
 ```
 
 
-generation ended 2014-05-24 00:14:56. Time spent 55 minutes .
+generation ended 2014-06-11 16:56:36. Time spent 54 minutes .
 
 

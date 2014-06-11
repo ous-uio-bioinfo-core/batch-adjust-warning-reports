@@ -11,7 +11,7 @@ starttime = Sys.time()
 This small report aim to show that the application of ComBat as described in the [user guide](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) accompanying the R package [sva](http://www.bioconductor.org/packages/2.13/bioc/html/sva.html) presented in [Leek et al.](http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669) will lead to false results even for random data.
 
 One sanity checks will be performed
-- Swapping real data with random numbers including a batch effect.
+- Swapping real data with random numbers with a batch effect.
 
 The rest of the tutorial will be performed with a few extra plots of the p-value distributions from the different analyses.
 
@@ -20,7 +20,6 @@ Most code are taken directly from the vignette source 'vignettes/sva/inst/doc/sv
 ```{r}
 
 options(width=65)
-
 library(sva)
 library(bladderbatch)
 data(bladderdata)
@@ -28,7 +27,6 @@ library(pamr)
 library(limma)
 
 pheno = pData(bladderEset)
-
 edata = exprs(bladderEset)
 
 ```
@@ -66,7 +64,7 @@ qValues = p.adjust(pValues,method="BH")
 hist(pValues,breaks=100)
 
 ```
-The above plot is from p-values calculated when batch is ignored, i.e the included batch effect acts a confounder.
+The above plot is from p-values calculated when batch is ignored, i.e the included batch effect acts as a confounder.
 
 
 ```{r dev='svg', fig.width=6, fig.height=6}
@@ -110,7 +108,7 @@ qValuesComBat = p.adjust(pValuesComBat,method="BH")
 hist(pValuesComBat,breaks=100)
 
 ```
-The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and a lot of genes would falsely been reported as differentially  expressed.
+The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and a lot of genes would falsely have been reported as differentially  expressed.
 
 The next example is described as a simplified version of ComBat.
 ```{r dev='svg', fig.width=6, fig.height=6}

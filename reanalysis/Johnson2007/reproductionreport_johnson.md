@@ -5,7 +5,7 @@ Reproduction and alternative analysis of "Data Set 2" from "Adjusting batch effe
 
 
 
-2014-05-24 01:50:07
+2014-06-11 14:13:43
 
 ### Overview
 This report aims to show to what extent the use of ComBat led to false results in the second analysis example given in [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) The example named "Data Set 2" and the analysis is described in the [supplementary material](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) for Johnson et al.
@@ -30,33 +30,6 @@ includelibs = c("pheatmap", "sva", "qvalue", "limma", "NMF", "statmod")
 # x11 icon.  Closing that x11 icon will abort the R session. Otherwise it
 # seem to work.
 tmp = lapply(includelibs, require, character.only = T)
-```
-
-```
-## Warning: package 'NMF' was built under R version 3.0.3
-## Warning: package 'pkgmaker' was built under R version 3.0.3
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: namespace 'Rcpp' is not available and has been replaced
-## by .GlobalEnv when processing object 'plot.index'
-## Warning: package 'statmod' was built under R version 3.0.3
-```
-
-```r
 print(tmp)
 if (any(!unlist(tmp))) {
     stop(paste("Not able to find all packages. Please install ", paste(includelibs[!unlist(tmp)], 
@@ -177,7 +150,7 @@ rm(variationmeasure, clustermatrix)
 Again the heatmap is not exactly as in Johnson et al, but the batch clustering is broken, and the samples cluster more by cell type and treatment type.
 
 Now follows a few tests for differentially expressed probes.
-> Differential expression was assessed using Welchs t-test to determine the differential expression of RNAi versus control samples. EB2 produced at list of 86 significant genes at a false discovery (q-value) threshold of 0.05 (Storey and Tibshirani, 2003).<cite> Johnson et al.
+> Differential expression was assessed using Welch’s t-test to determine the differential expression of RNAi versus control samples. EB2 produced at list of 86 significant genes at a false discovery (q-value) threshold of 0.05 (Storey and Tibshirani, 2003).<cite> Johnson et al.
 
 
 ```r
@@ -240,7 +213,7 @@ print(table(qvalue(Batch12_pvals)$qvalue<0.05))
 
 Original number was **9**, reproduced number is **4**.
 
-> Welchs t-test was also applied to EB3 to find differential expressed genes; yielding 1599 genes significant at a q-value cutoff of 0.05. <cite> Johnson et al.
+> Welch’s t-test was also applied to EB3 to find differential expressed genes; yielding 1599 genes significant at a q-value cutoff of 0.05. <cite> Johnson et al.
 
 
 ```r
@@ -673,14 +646,10 @@ sessionInfo()
 
 ```
 R version 3.0.2 (2013-09-25)
-Platform: x86_64-w64-mingw32/x64 (64-bit)
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
 
 locale:
-[1] LC_COLLATE=English_United States.1252 
-[2] LC_CTYPE=English_United States.1252   
-[3] LC_MONETARY=English_United States.1252
-[4] LC_NUMERIC=C                          
-[5] LC_TIME=English_United States.1252    
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
 attached base packages:
 [1] parallel  stats     graphics  grDevices utils     datasets  methods  
@@ -688,24 +657,24 @@ attached base packages:
 
 other attached packages:
  [1] statmod_1.4.19     NMF_0.20.5         Biobase_2.22.0    
- [4] BiocGenerics_0.8.0 cluster_1.14.4     rngtools_1.2.3    
- [7] pkgmaker_0.22      registry_0.2       limma_3.18.12     
-[10] qvalue_1.36.0      sva_3.8.0          mgcv_1.7-28       
-[13] nlme_3.1-113       corpcor_1.6.6      pheatmap_0.7.7    
+ [4] BiocGenerics_0.8.0 cluster_1.15.2     rngtools_1.2.4    
+ [7] pkgmaker_0.20      registry_0.2       limma_3.18.13     
+[10] qvalue_1.36.0      sva_3.8.0          mgcv_1.7-29       
+[13] nlme_3.1-117       corpcor_1.6.6      pheatmap_0.7.7    
 [16] knitr_1.5         
 
 loaded via a namespace (and not attached):
- [1] codetools_0.2-8    colorspace_1.2-4   dichromat_2.0-0   
- [4] digest_0.6.4       doParallel_1.0.8   evaluate_0.5.1    
- [7] foreach_1.4.1      formatR_0.10       ggplot2_0.9.3.1   
-[10] grid_3.0.2         gridBase_0.4-7     gtable_0.1.2      
-[13] iterators_1.0.6    labeling_0.2       lattice_0.20-24   
-[16] MASS_7.3-29        Matrix_1.1-2       munsell_0.4.2     
-[19] plyr_1.8           proto_0.3-10       RColorBrewer_1.0-5
-[22] reshape2_1.2.2     scales_0.2.3       stringr_0.6.2     
-[25] tcltk_3.0.2        tools_3.0.2        xtable_1.7-1      
+ [1] codetools_0.2-8    colorspace_1.2-4   digest_0.6.4      
+ [4] doParallel_1.0.8   evaluate_0.5.5     foreach_1.4.2     
+ [7] formatR_0.10       ggplot2_0.9.3.1    grid_3.0.2        
+[10] gridBase_0.4-7     gtable_0.1.2       iterators_1.0.7   
+[13] lattice_0.20-29    MASS_7.3-33        Matrix_1.1-3      
+[16] munsell_0.4.2      plyr_1.8.1         proto_0.3-10      
+[19] RColorBrewer_1.0-5 Rcpp_0.11.1        reshape2_1.4      
+[22] scales_0.2.4       stringr_0.6.2      tcltk_3.0.2       
+[25] tools_3.0.2        xtable_1.7-3      
 ```
 
 
-generation ended 2014-05-24 01:56:44. Time spent 7 minutes .
+generation ended 2014-06-11 14:21:26. Time spent 8 minutes .
 

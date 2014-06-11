@@ -1,5 +1,5 @@
 
-README for the batchnormwarning_reports git repository.
+README for the batch-adjust-warning-reports git repository.
 ----------------------
 
 
@@ -11,7 +11,7 @@ Rødland, E. Hovig, manuscript in preparation.
 The target audience is the especially interested ones, and the reports are not peer-reviewed.
 
 The format of the report is html, but the underlying r-code and text is available and
-rerunnable. Run knit2html on the individual .rmd files to re-generate the html.
+rerunnable. Run knit2html or the Rstudio knitr integration on the individual .rmd files to re-produce the plots and html.
 
 
 ### Johnson2007/
@@ -36,3 +36,9 @@ Mar 15;28(6):882-3.
 ### commonscripts/
 
 - helperfunctions.r  ad hoc methods.
+
+### Additional information
+
+The scripts that produces the figures in "Methods that remove batch effects while retaining group
+differences may lead to exaggerated confidence in downstream analyses" are found here:
+https://github.com/ous-uio-bioinfo-core/batch-adjust-warning-figures.git

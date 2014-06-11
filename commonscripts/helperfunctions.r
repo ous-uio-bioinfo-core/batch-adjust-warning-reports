@@ -1,5 +1,5 @@
 
-createsampleannotation = function( treatment_in_batches)
+Xcreatesampleannotation = function( treatment_in_batches)
 {
 	batches = vector()
 	treatments = vector()
@@ -21,14 +21,14 @@ createsampleannotation = function( treatment_in_batches)
 
 
 
-createrandomdata = function(ngenes, sa, mean=0, sd=1)
+xcreaterandomdata = function(ngenes, sa, mean=0, sd=1)
 {
 	ret = matrix( rnorm(dim(sa)[1]*ngenes, mean=mean, sd=sd), ncol=dim(sa)[1], nrow=ngenes)
 	dimnames(ret) = list( paste("gene", 1:ngenes, sep=""),  sa$id)
 	return(ret)
 }
 
-addbatcheffect = function(df, batches, thismean=1, thissd=1)
+xaddbatcheffect = function(df, batches, thismean=1, thissd=1)
 {
 	ret = df
 	for(i in 1:length(unique(batches)))
@@ -45,7 +45,7 @@ addbatcheffect = function(df, batches, thismean=1, thissd=1)
 }
 
 # 
-addconditioneffect = function(df, labels, ndiffgenes, thismean=1, betweensd=1, insidesd=1, affectedconditions)
+xaddconditioneffect = function(df, labels, ndiffgenes, thismean=1, betweensd=1, insidesd=1, affectedconditions)
 {
 	ret = df
 	if(ndiffgenes>0)
@@ -65,7 +65,7 @@ addconditioneffect = function(df, labels, ndiffgenes, thismean=1, betweensd=1, i
 }
 
 
-getdifftab_sva = function(edata, sa, mod, threshold=0.05)
+xgetdifftab_sva = function(edata, sa, mod, threshold=0.05)
 {
 	mod0 = model.matrix(~1,data=sa)
 	pValues = f.pvalue(edata,mod,mod0)
@@ -85,7 +85,7 @@ getdifftab_sva = function(edata, sa, mod, threshold=0.05)
 
 # adapted from
 #http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf
-getdifftab_limma = function(edata, condition,  contrast, block=NULL, threshold=0.05)
+xgetdifftab_limma = function(edata, condition,  contrast, block=NULL, threshold=0.05)
 {
 	require(limma)
 	fac = factor(condition)	
@@ -117,7 +117,7 @@ getdifftab_limma = function(edata, condition,  contrast, block=NULL, threshold=0
 
 
 
-panel.mid <- function(x, ...)
+xpanel.mid <- function(x, ...)
 {
     usr <- par("usr"); on.exit(par(usr))
     par(usr = c(usr[1:2], 0, 1.5) )
@@ -129,7 +129,7 @@ panel.mid <- function(x, ...)
 
 
 
-panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
+xpanel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 {
     usr <- par("usr"); on.exit(par(usr))
     par(usr = c(0, 1, 0, 1))
@@ -142,7 +142,7 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 
 
 
-getbalancename = function(sa)
+xgetbalancename = function(sa)
 {
 	 tab = table(sa[,c("batch", "treatment")])
 	 ret = paste("design_" ,  dim(tab)[1], "x", dim(tab)[2], sep="")
@@ -158,7 +158,7 @@ getbalancename = function(sa)
 #m = combat_mod[i,]
 #sa = sampleannotation
 #main="after"
-plot_one_gene = function(m, sa, ylim=NA, main="")
+xplot_one_gene = function(m, sa, ylim=NA, main="")
 {
 	a = order(sa$batch)
 	
@@ -205,7 +205,7 @@ plot_one_gene = function(m, sa, ylim=NA, main="")
 #dat  = df
 #sa = sampleannotation
 #name =  paste("sampledata/", getbalancename(sampleannotation), sep="")
-makecombatinputfiles = function(dat, sa, name)
+xmakecombatinputfiles = function(dat, sa, name)
 {
 	datafn = paste(name, "_data.txt", sep="")
 	write(paste( c("geneinfo", dimnames(dat)[[2]]), collapse="\t"), file=datafn)
@@ -223,7 +223,7 @@ makecombatinputfiles = function(dat, sa, name)
 #conditions=sampleannotation$covariate1
 
 # subsetting the samples so that they have a balanced conditon distribution across batches. i.e each batch has the same compitition of conditions (example 70% treated vs 30% untreated)
-drawbatchbalanceddsamples = function(samplenames, batches, conditions)
+xdrawbatchbalanceddsamples = function(samplenames, batches, conditions)
 {
 	# 1. find the minimal count for each condition across batches.
 	# 2 find the minimal given count / minimal count inside each batch
@@ -292,7 +292,7 @@ shufflesamplesinbatch = function(samplenames, batch, covariate, shufflecovariate
 
 
 
-adhocpvalueplot = function(realcombatp, reallimmap, randomp, main="P-values", xrange=1:25)
+xadhocpvalueplot = function(realcombatp, reallimmap, randomp, main="P-values", xrange=1:25)
 {
   thiscolors = c("red", "blue", "black")
   

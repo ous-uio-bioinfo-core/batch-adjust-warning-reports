@@ -321,11 +321,11 @@ limma_ret_org = eBayes(fit2)
 limma_p_org = limma_ret_org$p.value
 #names(limma_p_org) = names(limma_ret_org$Amean)
 par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe], xlab="Original Table S5", 
+plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe,], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
 thiscolors = c("black", "red")
 hist(limma_p_org, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
-hist(limma_p_org[table_s5$Probe], breaks=100, add=T, freq=T, border=thiscolors[2])
+hist(limma_p_org[table_s5$Probe,], breaks=100, add=T, freq=T, border=thiscolors[2])
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic give more similar p-values as in Table S5, and for the rest of this report this is what will be used.
@@ -337,11 +337,11 @@ limma_ret_alt = eBayes(fit2)
 limma_p_alt = limma_ret_alt$p.value
 #names(limma_p_alt) = names(limma_ret_alt$Amean)
 par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe], xlab="Original Table S5", 
+plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe,], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
 thiscolors = c("black", "red")
 hist(limma_p_alt, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
-hist(limma_p_alt[table_s5$Probe], breaks=100, add=T, freq=T, border=thiscolors[2])
+hist(limma_p_alt[table_s5$Probe,], breaks=100, add=T, freq=T, border=thiscolors[2])
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report since they showed a similar pattern as for the limma p-values.
