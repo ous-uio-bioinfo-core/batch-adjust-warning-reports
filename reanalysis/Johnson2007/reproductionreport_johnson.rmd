@@ -80,7 +80,7 @@ aheatmap(clustermatrix, scale = "row", Rowv=T, Colv=T,
 
 rm(variationmeasure, clustermatrix)
 ```
-The heatmap does not look exactly as [Fig. A.1](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) in Johnson et al. This could be due to undocumented transformations preformed in Johnson et al., for example log-transformation or standardization. And there are different ways of calculating variation for a probe. The parameters used in the clustering could also be different. But the purpose of the figure was to show that a batch effect is present in the data. This is also achieved in the reproduced figure.
+The heatmap does not look exactly as [Fig. A.1](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) in Johnson et al. This could be due to undocumented transformations performed in Johnson et al., for example log-transformation or standardization. And there are different ways of calculating variation for a probe. The parameters used in the clustering could also be different. But the purpose of the figure was to show that a batch effect is present in the data. This is also achieved in the reproduced figure.
 <BR/>  
 <BR/>  
 Next 3 data sets were made,
