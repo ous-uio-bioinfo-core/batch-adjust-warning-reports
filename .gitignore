@@ -1,0 +1,4 @@
+## General files to ignore
+.*
+!.gitignore
+_*
