@@ -10,12 +10,11 @@ starttime = Sys.time()
 ## Overview
 This small report aim to show that the application of ComBat as described in the [user guide](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) accompanying the R package [sva](http://www.bioconductor.org/packages/2.13/bioc/html/sva.html) presented in [Leek et al.](http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=22257669) will lead to false results even for random data.
 
-One sanity checks will be performed
-- Swapping real data with random numbers with a batch effect.
+One sanity check will be performed
 
-The rest of the tutorial will be performed with a few extra plots of the p-value distributions from the different analyses.
+- Real data will be replaced with random numbers and a batch effect will be added wherafter the rest of the tutorial will be performed with a special focus on the procuced p-values.
 
-Most code are taken directly from the vignette source 'vignettes/sva/inst/doc/sva.Rnw'. For more explanation, please read the [sva tutorial](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) in parallel while remembering that the real data is swapped with random numbers.
+Most code are taken directly from the vignette source 'vignettes/sva/inst/doc/sva.Rnw'. For more explanation, please read the [sva tutorial](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) in parallel while remembering that the real data is replaced with random numbers.
 
 ```{r}
 
@@ -64,7 +63,8 @@ qValues = p.adjust(pValues,method="BH")
 hist(pValues,breaks=100)
 
 ```
-The above plot is from p-values calculated when batch is ignored, i.e the included batch effect acts as a confounder.
+
+The above plot is from p-values calculated when batch is ignored, i.e. the included batch effect acts as a confounder.
 
 
 ```{r dev='svg', fig.width=6, fig.height=6}
@@ -76,6 +76,7 @@ pValuesSv = f.pvalue(edata,modSv,mod0Sv)
 qValuesSv = p.adjust(pValuesSv,method="BH")
 hist(pValuesSv,breaks=100)
 ```
+
 This is the p-values when batch is handled by the sva method. The plot makes sense for random numbers.
 
 ```{r dev='svg', fig.width=6, fig.height=6}
@@ -90,11 +91,12 @@ topTableF(eb, adjust="BH")
 hist(eb$p.value,breaks=100)
 
 ```
+
 This is the p-values when limma is used in conjunction with the sva-method. There is a slight skewness, but not much.
 
 
 
-Next comes the ComBat method of adjusting for batch, where the batch effect is estimated while trying to retain the group differences. The data is adjusted and in the next step a differential expression analysis is performed.
+Next, the ComBat method is applied, where the batch effect is estimated while trying to retain the group differences. The data is adjusted and in the next step a differential expression analysis is performed.
 ```{r dev='svg', fig.width=6, fig.height=6}
 
 batch = pheno$batch
@@ -108,9 +110,10 @@ qValuesComBat = p.adjust(pValuesComBat,method="BH")
 hist(pValuesComBat,breaks=100)
 
 ```
-The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and a lot of genes would falsely have been reported as differentially  expressed.
 
-The next example is described as a simplified version of ComBat.
+The p-values from the analysis when ComBat adjusted data is used shows a rather huge skewness, and many genes would falsely have been reported as differentially expressed.
+
+The next example is in the tutroial described as a simplified version of ComBat.
 ```{r dev='svg', fig.width=6, fig.height=6}
 
 modBatch = model.matrix(~as.factor(cancer) + as.factor(batch),data=pheno)
@@ -119,10 +122,11 @@ pValuesBatch = f.pvalue(edata,modBatch,mod0Batch)
 qValuesBatch = p.adjust(pValuesBatch,method="BH")
 hist(pValuesBatch,breaks=100)
 ```
+
 The above method of handling batch is quite similar to the blocking method described in the [limma guide](http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf). The resulting p-values are as expected for random data.
 
 
-The last example from the sva tutorial is how to use sva in a prediction analysis. This might not be relevant, but is included.
+The last example from the sva tutorial is how to use sva in a prediction analysis. This might not be relevant, but is included anyways.
 ```{r}
 
 n.sv = num.sv(edata,mod,vfilter=2000,method="leek")
@@ -154,6 +158,7 @@ mytrainSv = pamr.train(mydataSv)
 table(pamr.predict(mytrainSv,fsvaobj$new,threshold=1),testPheno$cancer)
 
 ```
+
 The prediction does not improve when sva is used to adjust for batch. This makes sense since it is random data.
 
 
