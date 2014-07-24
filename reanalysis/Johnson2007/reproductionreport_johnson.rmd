@@ -10,7 +10,7 @@ starttime = Sys.time()
 
 ### Overview
 This report aims to show to what extent the use of ComBat led to false results in the second analysis example given in [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) The example named "Data Set 2" and the analysis is described in the [supplementary material](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) for Johnson et al.
-Description on how to obtain the data were found [here](https://groups.google.com/d/msg/combat-user-forum/S9vBcXw8RGk/XNWnNl0PE94J) which had links to [dataExample2.txt](http://www.bu.edu/jlab/wp-assets/ComBat/data/dataExample2.txt)
+Description on how to obtain the data was found [here](https://groups.google.com/d/msg/combat-user-forum/S9vBcXw8RGk/XNWnNl0PE94J) which had links to [dataExample2.txt](http://www.bu.edu/jlab/wp-assets/ComBat/data/dataExample2.txt)
 and [sampleInfoExample2.txt](http://www.bu.edu/jlab/wp-assets/ComBat/data/sampleInfoExample2.txt)
 
 This document has four main parts 
@@ -80,7 +80,7 @@ aheatmap(clustermatrix, scale = "row", Rowv=T, Colv=T,
 
 rm(variationmeasure, clustermatrix)
 ```
-The heatmap does not look exactly as [Fig. A.1](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) in Johnson et al. This could be due to undocumented transformations preformed in Johnson et al., for example log-transformation or standardization. And there are different ways of calculating variation for a probe. The parameters used in the clustering could also be different. But the purpose of the figure was to show that a batch effect is present in the data. This is also achieved in the reproduced figure.
+The heatmap does not look exactly as [Fig. A.1](http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf) in Johnson et al. This could be due to undocumented transformations performed in Johnson et al., for example log-transformation or standardization. And there are different ways of calculating variation for a probe. The parameters used in the clustering could also be different. But the purpose of the figure was to show that a batch effect is present in the data. This is also achieved in the reproduced figure.
 <BR/>  
 <BR/>  
 Next 3 data sets were made,
