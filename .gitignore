@@ -2,3 +2,17 @@
 .*
 !.gitignore
 _*
+
+*.Rproj.user
+*.Rhistory
+*.RData
+/figure
+figure
+.DS_Store
+not_in_github/
+*.Rapp.history
+cache/
+*.Rproj
+old/
+.gitignore
+.Rproj.user
