@@ -30,9 +30,11 @@ downloaddata=TRUE
 set.seed(100)
 ```
 
+<br/>
+<br/>
+
 ```{r, results='hide', message=FALSE}
-includelibs = c("Biobase", "GEOquery", "sva", "limma",
-                 "preprocessCore", "statmod")
+includelibs = c("sva", "limma", "xtable")
 tmp=lapply(includelibs, require, character.only=T)
 if(any(!unlist(tmp)))
 {
@@ -63,13 +65,20 @@ Communication with the corresponding author yielded this explanation
 
 Based on these descriptions and the annotation for the GEO deposit, we compiled a more complete sample annotation file (sampleannotation.csv).
 
-```{r}
+```{r results="asis"}
 sampleannotation = read.table("data/sampleannotation.csv", sep="\t", header=TRUE,  stringsAsFactors=FALSE)
 sampleannotation$code = make.names(sampleannotation$code)
 sampleannotation$chip = as.character(sampleannotation$chip)
 dimnames(sampleannotation)[[1]] = sampleannotation$code
-head(sampleannotation)
+
+print.xtable(xtable ( head(sampleannotation), caption="Head of sampleannotation"), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
 ```
+
+<br/>
 
 The "covariate"-column is made based on the "code"-column, but might not match 100% to what were actually used for all samples. The last two columns are from the GEO deposit and reveal the samples that do not have data, which we will remove from the data shortly.
 
@@ -87,16 +96,32 @@ sampleannotation = sampleannotation[!is.na(sampleannotation$geoaccession),]
 
 The batch/covariate design shows many batches and covariate groups.
 
-```{r}
-table(sampleannotation[, c("chip", "covariate")])
+```{r results='asis'}
+print.xtable(xtable ( table(sampleannotation[, c("chip", "covariate")]), caption="Number of samples per batch/covariate combo. Chip barcode in rows, covariate in columns"), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
 ```
+
+<br/>
+<br/>
 
 A look at the primary comparison, "DP"(GA) and "N"(generic) reveals a lack of balance.
 
-```{r}
-table(sampleannotation[sampleannotation$covariate %in% c("DP", "N"), 
-                       c("chip", "covariate")])
+```{r results='asis'}
+
+print.xtable(xtable ( table(sampleannotation[sampleannotation$covariate %in% c("DP", "N"),
+										c("chip", "covariate")]),), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
 ```
+
+<br/>
+<br/>
+
 
 > The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566)
 
@@ -230,9 +255,8 @@ if(debug)
   table_s2 = table_s2[table_s2$ID %in% rownames(datamatrices[["real_raw"]]),]
   table_s5 = table_s5[table_s5$Probe %in% rownames(datamatrices[["real_raw"]]), ]
 }
-datamatrices[["real_qnorm"]] = normalize.quantiles(datamatrices[["real_raw"]])
-# used in paper, but seems to do the same as the limma version. Except it loses dimnames
-dimnames(datamatrices[["real_qnorm"]]) = dimnames(datamatrices[["real_raw"]])
+datamatrices[["real_qnorm"]] = normalizeBetweenArrays(datamatrices[["real_raw"]], method="quantile")
+# normalize.quantiles from the package preprocessCore is used the paper, but seems to do the same as the limma version.
 ```
 
 > We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates. 
@@ -261,8 +285,15 @@ First we will try to reproduce Table S2.
 
 This is how the table looks
 
-```{r}
-head(table_s2)
+```{r results='asis'}
+
+
+print.xtable(xtable ( head(table_s2), caption="Head of Table S2"), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
+
 ```
 
 ```{r}
@@ -301,9 +332,18 @@ Original values from table S2 on X-axis, reporduced values on Y-axis. The values
 
 This is how the table looks. It is transposed and shows only the top 3 genes for visualization purposes.
 
-```{r}
-t(table_s5[1:3,])
+```{r results="asis"}
+
+print.xtable(xtable (t(table_s5[1:3,]), caption="top of Table_S5"), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
+
 ```
+
+<br/>
+<br/>
 
 > Comparison of expression in GA to expression in GA for each probe, including fold change, ANOVA, LIMMA with background subtraction, comparative marker selection by signal-to-noise ratio, comparative marker selection by t-test, and the Wilcoxon non-parametric method. <cite> Figure text, Towfic et al.
 
@@ -583,7 +623,7 @@ for(i in 1:length(permuted_pvalcounts))
 legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
 ```
 
-Shuffling the N and DP labels with in batches produces about the same p-value distribution as the real data. This is an indication that the significant genes found in the real data is not associated with the N and DP labels, but a rather an effect of the ComBat adjustments.
+Shuffling the N and DP labels with in batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data is not associated with the N and DP labels, but a rather an adverse effect of the ComBat adjustments.
 
 
 <br/>
