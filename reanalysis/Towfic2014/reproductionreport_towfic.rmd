@@ -623,7 +623,7 @@ for(i in 1:length(permuted_pvalcounts))
 legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
 ```
 
-Shuffling the N and DP labels with in batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data is not associated with the N and DP labels, but a rather an adverse effect of the ComBat adjustments.
+Shuffling the N and DP labels with in batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data is not associated with the N and DP labels, but a rather an adverseffect of the ComBat adjustments.
 
 
 <br/>
