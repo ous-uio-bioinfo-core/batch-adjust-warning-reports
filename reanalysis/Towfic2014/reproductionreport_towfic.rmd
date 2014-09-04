@@ -10,17 +10,17 @@ Partial reproduction and alternative analysis of "Comparing the Biological Impac
 This report aims to show that the use of the statistical tool ComBat from [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) led to false results in the analysis performed in [Towfic et al.'s ](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0083757) "Comparing the Biological Impact of Glatiramer Acetate with the Biological Impact of a Generic".
 
 The generation of this report is a side product of  "Methods that remove batch effects while retaining group differences may lead
-to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consist of some of the analyses performed working with the manuscript that were to detailed to be included. Nevertheless it should be useful for the specially interested. This report is not peer-reviewed.
+to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consists of some of the analyses performed working with the manuscript that were to detailed too be included. Nevertheless, it should be useful for those especially interested. This report is not peer-reviewed.
 
-The format of this report is html with text, r-code and plots intermingled and made from a rmarkdown file in R-studio with knitr. It is meant to be reproducible if run in conjunction with a few accompanying files from the github repository.
+The format of this report is html with text, r-code and plots intermingled and made from an rmarkdown file in R-studio with knitr. It is intended to be reproducible if run in conjunction with a few accompanying files from the github repository.
 
 This document has five main parts
 
 - Getting and formatting the data
-- Reproduce some of the results to show that we are working on the same data and analysis workflow
+- Reproducing some of the results to show that we are working on the same data and analysis workflow
 - Remove the use of ComBat and perform a similar analysis with an alternative established tool
-- Estimate the error introduced when ComBat is used and the consequences for the conclusion of the study
-- Perform a few more sanity checks to substantiate that the difference in results for the two above analysis is mainly introduced by ComBat
+- Estimate the error introduced when ComBat is used, and evaluate the consequences for the conclusion of the study
+- Perform a few more sanity checks to substantiate that the difference in results for the two analyses above is mainly introduced by ComBat
 
 
 ```{r runparameters, results='hide', echo=FALSE}
@@ -80,9 +80,9 @@ print.xtable(xtable ( head(sampleannotation), caption="Head of sampleannotation"
 
 <br/>
 
-The "covariate"-column is made based on the "code"-column, but might not match 100% to what were actually used for all samples. The last two columns are from the GEO deposit and reveal the samples that do not have data, which we will remove from the data shortly.
+The "covariate"-column is made based on the "code"-column, but might not match 100% to what was actually used for all samples. The last two columns are from the GEO deposit and reveal the samples that do not have data, which we will remove from the data shortly.
 
-The naming convention seem to differ slightly between the Table S1 and the text in Towfic et al. This is our interpretation of the main covariate labels and its corresponding name in the text.
+The naming convention seems to differ slightly between the Table S1 and the text in Towfic et al. This is our interpretation of the main covariate labels and its corresponding name in the text.
 
 - **DP** referred to as GA (but not GA as in table S1)
 - **N** referred to as "generic"
@@ -90,7 +90,7 @@ The naming convention seem to differ slightly between the Table S1 and the text 
 - **RS** referred to as "reference standard""
 
 ```{r}
-# take out 3 samples that are not assign to a geoaccession. Failed QC?
+# take out 3 samples that are not assigned to a geoaccession. Failed QC?
 sampleannotation = sampleannotation[!is.na(sampleannotation$geoaccession),] 
 ```
 
@@ -196,7 +196,7 @@ probeannotation$Symbol=tolower(probeannotation$Symbol)
 dimnames(probeannotation)[[1]] = probeannotation$Probe_Id
 #dim(probeannotation)
 
-#sort and filter probe and data similar.
+#sort and filter probe and data similarly.
 datamatrix_raw = as.matrix(rawdata[,-1])
 datamatrix_raw = datamatrix_raw[match( probeannotation$Array_Address_Id , rawdata$ID_REF), ]
 dimnames(datamatrix_raw)[[1]] = probeannotation$Probe_Id
@@ -209,7 +209,7 @@ dimnames(datamatrix_raw)[[1]] = probeannotation$Probe_Id
 datamatrix_raw = datamatrix_raw[, match(sampleannotation$code , dimnames(datamatrix_raw)[[2]])]
 ```
 
-Several tables with results are presented in the Supporting Information in Towfic et al. We are aiming to reproduce two of these. Unfortunately they were only presented in a pdf-format not easily parsed by a computer. We had to resort to a adhoc method of cut-and-paste from pdf into text files which were somewhat polluted by pdf-formatting code. For some tables about 10% of the rows will be lost, but the rest will suffice for our purpose.
+Several tables with results are presented in the Supporting Information in Towfic et al. We are aiming to reproduce two of these. Unfortunately, they were only presented in a pdf-format not easily parsed by a computer. We had to resort to an ad hoc method of cut-and-paste from pdf into text files which were somewhat polluted by pdf-formatting code. For some tables, about 10% of the rows will be lost, but the rest will suffice for our purpose.
 
 ```{r}
 # Table S2
@@ -242,7 +242,7 @@ table_s5$Fold_Change = as.numeric(table_s5$Fold_Change)
 
 ### Reproduce some of the original results
 
-Towfic et al. performed several different tests for this data, and it is outside the scope of this report to reproduce all of their results. We focus on the key part of testing for differentially expressed genes between "GA" (DP) and "generic"(N) as described in Table S2 and Table S5. But before those tests we have to preprocess according to the description.
+Towfic et al. performed several different tests for these data, and it is outside the scope of this report to reproduce all of their results. We focus on the key part of testing for differentially expressed genes between "GA" (DP) and "generic"(N) as described in Table S2 and Table S5. But prior to those tests, we have to preprocess according to the description.
 
 > Starting with background-corrected bead-level signals, we quantile normalized the extracted data for all samples across all 46,547 probes via the “preprocessCore” package in R.
 
@@ -256,7 +256,7 @@ if(debug)
   table_s5 = table_s5[table_s5$Probe %in% rownames(datamatrices[["real_raw"]]), ]
 }
 datamatrices[["real_qnorm"]] = normalizeBetweenArrays(datamatrices[["real_raw"]], method="quantile")
-# normalize.quantiles from the package preprocessCore is used the paper, but seems to do the same as the limma version.
+# normalize.quantiles from the package preprocessCore is used in the paper, but seems to do the same as the limma version.
 ```
 
 > We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates. 
@@ -323,7 +323,7 @@ plot(table_s2$AVG_GA, meanDP[table_s2$ID], pch=".")
 plot(table_s2$AVG_generic, meanN[table_s2$ID], pch=".")
 ```
 
-Original values from table S2 on X-axis, reporduced values on Y-axis. The values in Table S2 is almost reproduced.
+Original values from table S2 on X-axis, reproduced values on Y-axis. The values in Table S2 is almost reproduced.
 
 <br/>
 <br/>
@@ -372,7 +372,7 @@ legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolor
 ```
 
 The first plot reveals that the reproduced fold changes are much more compressed than the ones in Table S5.
-There seems to be two linear relationship, one for negative FC's and another for positive FC's. They seem to have different intercepts but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
+There seems to be two linear relationship, one for negative FC's and another for positive FC's. They seem to have different intercepts, but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
 
 The fold changes in table 5S do not match the fold changes computed from the average expression values listed in table S2 either, as a plot will show;
 
@@ -388,9 +388,9 @@ plot(x, y , ylim=lim, xlim=lim, pch="." ,  xlab="Table_S5", ylab="Table_S2",
 rm(x, y, lim)
 ```
 
-There seems to be some inconsistency between the fold changes in table S5 and the reproduced ones, however it is the confidence i.e p-values that are affected by the use of ComBat. 
+There seems to be some inconsistency between the fold changes in table S5 and the reproduced ones. However, it is the confidence i.e p-values that are affected by the use of ComBat. 
 
-The rest of table S5 is p-values and we will try to reproduce the ones from limma.
+The rest of table S5 are p-values, and we will try to reproduce the ones from limma.
 
 > Next, we utilized Linear Models for Microarray (LIMMA) data analysis [23], [24] R package, part of the Bioconductor framework [25], to compare generic and GA samples, fitting a linear model that adjusts for fixed effect from medium (Effect = (GA-generic) – (generic-Medium)). The coefficients for the linear model were tested for significance using a modified t-test (taking into account standard deviation)...<cite> Towfic et al.
 
@@ -414,7 +414,7 @@ hist(limma_p_org[table_s5$Probe,1], breaks=100, add=T, freq=T, border=thiscolors
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
-A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic give more similar p-values as in Table S5, and for the rest of this report this is what will be used.
+A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic gives more similar p-values as in Table S5, and for the remainder of this report, this is what will be used.
 
 ```{r dev='png', fig.width=10, fig.height=6, fig.show='hold', tidy=FALSE}
 cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)  
@@ -431,18 +431,18 @@ hist(limma_p_alt[table_s5$Probe,1], breaks=100, add=T, freq=T, border=thiscolors
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
-The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report since they showed a similar pattern as for the limma p-values.
+The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report, since they showed a similar pattern as for the limma p-values.
 
 This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
 
 <br/>
 <br/>
 
-### Analysis without ComBat and consequences on the results
+### Analysis without ComBat, and consequences on the results
 
 Table S2 has average expression values for the conditions, but includes no values about how much trust we can have in those average expressions (i.e significance tests, confidence intervals etc.).
 
-Table S5 on the other hand consists of results from significance tests that are strongly influenced by ComBat's data transformation. An alternative way of handling batch effect compared to ComBat's is to include it in the statistical test. This can be done in limma in two ways, first what is described as "Blocking" in the limma user guide.
+Table S5, on the other hand, consists of results from significance tests that are strongly influenced by ComBat's data transformation. An alternative way of handling the batch effect compared to ComBat's is to include it in the statistical test. This can be done in limma in two ways. First what is described as "Blocking" in the limma user guide.
 
 ```{r dev='png', fig.width=8, fig.height=8, fig.show='hold', tidy=FALSE}
 group = factor(sampleannotation$covariate)
@@ -485,21 +485,21 @@ hist(limma_p_mixed, breaks=100, add=T, freq=T, border=thiscolors[3])
 legend("topright", legend=c("ComBat adjusted", "LIMMA adjusted as factor", "LIMMA adjusted as random effect"), text.col=thiscolors)
 ```
 
-For this data set the two LIMMA methods will give quite similar results, at least compared to the ComBat adjusted approach. We will only use the first, "Blocking", in subsequent comparisons.
+For this data set, the two LIMMA methods will give quite similar results, at least compared to the ComBat adjusted approach. We will only use the first, "Blocking", in subsequent comparisons.
 
 <br/>
 <br/>
 
 ### Additional sanity checks
 
-To substantiate that the result from the use of ComBat is less trustworthy than the alternative analysis we provide a couple of additional sanity checks.
+To substantiate that the result from the use of ComBat is less trustworthy than the alternative analysis, we provide a couple of additional sanity checks.
 
 <br/>
 <br/>
 
 **Random data**
 
-First we use random numbers drawn from the same distribution(mean=0, sd=1) regardless of batch or covariate but retaining the batch/covariate design.
+First, we use random numbers drawn from the same distribution(mean=0, sd=1) regardless of batch or covariate, while retaining the batch/covariate design.
 
 ```{r}
 set.seed(100)
@@ -563,7 +563,7 @@ The p-value plots from the ComBat adjusted random data shows a skewed distributi
 **Permuted labels**
 
 
-Another sanity check is by permuting the DP (GA) and N(generic) labels and observe changes in the results. The real data is used ´, and in order to retain the batch effect we will only swap labels within a batch. This should in theory give fewer significant probes.
+Another sanity check is by permuting the DP (GA) and N(generic) labels and observe changes in the results. The real data are used ´, and in order to retain the batch effect, we will only swap labels within a batch. This should in theory give fewer significant probes.
 
 ```{r results='hide'}
 source("../../commonscripts/helperfunctions.r")
@@ -623,7 +623,7 @@ for(i in 1:length(permuted_pvalcounts))
 legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
 ```
 
-Shuffling the N and DP labels with in batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data is not associated with the N and DP labels, but a rather an adverseffect of the ComBat adjustments.
+Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not associated with the N and DP labels, but a rather an advers effect of the ComBat adjustments.
 
 
 <br/>
