@@ -10,9 +10,9 @@ Partial reproduction and alternative analysis of "Comparing the Biological Impac
 This report aims to show that the use of the statistical tool ComBat from [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) led to false results in the analysis performed in [Towfic et al.'s ](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0083757) "Comparing the Biological Impact of Glatiramer Acetate with the Biological Impact of a Generic".
 
 The generation of this report is a side product of  "Methods that remove batch effects while retaining group differences may lead
-to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consists of some of the analyses performed working with the manuscript that were to detailed too be included. Nevertheless, it should be useful for those especially interested. This report is not peer-reviewed.
+to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consists of some of the analyses performed working with the manuscript that were too detailed to be included. Nevertheless, it should be useful for those especially interested. This report is not peer-reviewed.
 
-The format of this report is html with text, r-code and plots intermingled and made from an rmarkdown file in R-studio with knitr. It is intended to be reproducible if run in conjunction with a few accompanying files from the github repository.
+The format of this report is html with text, r-code and plots intermingled and made from an rmarkdown file in R-studio with knitr. It is intended to be reproducible if run in conjunction with a few accompanying files from the github repository (https://github.com/ous-uio-bioinfo-core/batch-adjust-warning-reports.git).
 
 This document has five main parts
 
@@ -61,7 +61,7 @@ The important sample information is described in Table S1 from Towfic et al. and
 Table S1 does have a "Chip"- column, unfortunately there is no dedicated "treatment"-column.
 Communication with the corresponding author yielded this explanation
 
-> ..and the only thing we used as a covariate was the unique treatment names themselves (e.g. "Medium"" or "RS").
+> ..and the only thing we used as a covariate was the unique treatment names themselves (e.g. "Medium"" or "RS").<cite> Towfic et al.
 
 Based on these descriptions and the annotation for the GEO deposit, we compiled a more complete sample annotation file (sampleannotation.csv).
 
@@ -123,7 +123,7 @@ print.xtable(xtable ( table(sampleannotation[sampleannotation$covariate %in% c("
 <br/>
 
 
-> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566)
+> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
 
 The processed data from the above GEO deposit ("Series Matrix File") is from another publication which did not processes the data as described in Towfic et al. (personal communication). The lesser processed data in GEO linked to as [GSE40566_non_normalized.txt.gz](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz) in the "Supplementary file" section was thus used in this report.
 
@@ -131,7 +131,7 @@ Probe annotation was also found in the "Supplementary file" section as [GSE40566
 
 A recap of the important input files used in this report:
 
-- **sampleannotation.csv** holds the important sample/batch/covariate assignment. Compiled based on information in Towfic et al, the geo deposit and personal communication.
+- **sampleannotation.csv** holds the important sample/batch/covariate assignment. Compiled based on information in Towfic et al, the GEO deposit and personal communication.
 - **GSE40566_non_normalized.txt** the measurements in a sample vs probe matrix. From the [GEO deposit](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz). Not in github.
 - **GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt** the probe annotation needed for the data row to probe to gene matching. From the GEO deposit inside the [GSE40566_RAW.tar](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file). Not in github.
 
@@ -167,7 +167,7 @@ if(downloaddata)
                        sep="\t", header=TRUE, stringsAsFactors=FALSE)
 
   # the probe annotation file found inside GSE40566_RAW.tar
-  rawannotation = read.table("not_in_github/GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt", 
+  rawannotation = read.table("not_in_github/GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt.gz", 
                              sep="\t", header=TRUE, stringsAsFactors=FALSE, 
                              skip=8, comment.char="", quote="", fill=TRUE)
 }
@@ -244,7 +244,7 @@ table_s5$Fold_Change = as.numeric(table_s5$Fold_Change)
 
 Towfic et al. performed several different tests for these data, and it is outside the scope of this report to reproduce all of their results. We focus on the key part of testing for differentially expressed genes between "GA" (DP) and "generic"(N) as described in Table S2 and Table S5. But prior to those tests, we have to preprocess according to the description.
 
-> Starting with background-corrected bead-level signals, we quantile normalized the extracted data for all samples across all 46,547 probes via the “preprocessCore” package in R.
+> Starting with background-corrected bead-level signals, we quantile normalized the extracted data for all samples across all 46,547 probes via the “preprocessCore” package in R. <cite> Towfic et al.
 
 ```{r}
 datamatrices = list()
@@ -259,7 +259,7 @@ datamatrices[["real_qnorm"]] = normalizeBetweenArrays(datamatrices[["real_raw"]]
 # normalize.quantiles from the package preprocessCore is used in the paper, but seems to do the same as the limma version.
 ```
 
-> We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates. 
+> We then corrected for batch variation with ComBat [17] as implemented in the SVA package of R [18]. Each microarray’s chip designation was supplied a batch label; there were 18 batches in all. The labels for the treatments (i.e. drug product, reference standard…) were added as covariates. <cite> Towfic et al.
 
 ```{r}
 combatmod = model.matrix(~as.factor(sampleannotation$covariate))
@@ -279,9 +279,9 @@ datamatrices[["real_combat_covariates"]]= as.matrix(ComBat(dat=datamatrices[["re
 
 First we will try to reproduce Table S2.
 
-> Genes utilized for the tolerance method illustrated in Figure 1B. (figure text)
+> Genes utilized for the tolerance method illustrated in Figure 1B. <cite> Towfic et al.(figure text)
 
-> This standard of comparison was constructed by first identifying the top 1000 probes by absolute fold change of reference standard compared to the medium (Table S2). The list includes both upregulated and downregulated probes compared to medium. Probes were filtered such that ones upregulated by reference standard needed to have an average reference standard expression of 6.00 or higher and ones downregulated by reference standard needed to have an average medium expression of 6.00 or higher. 
+> This standard of comparison was constructed by first identifying the top 1000 probes by absolute fold change of reference standard compared to the medium (Table S2). The list includes both upregulated and downregulated probes compared to medium. Probes were filtered such that ones upregulated by reference standard needed to have an average reference standard expression of 6.00 or higher and ones downregulated by reference standard needed to have an average medium expression of 6.00 or higher. <cite> Towfic et al.
 
 This is how the table looks
 
@@ -312,7 +312,7 @@ top1000_RS_vs_M = names(foldchange_RS_vs_M[order(abs(foldchange_RS_vs_M), decrea
 table(table_s2$ID %in% top1000_RS_vs_M)
 ```
 
-Out of Table S2's **`r nrow(table_s2)`** probes, **`r sum(table_s2$ID %in% top1000_RS_vs_M)`** were reproduced. Scatter plots of the actual values shows a correlation.
+Out of Table S2's **`r nrow(table_s2)`** probes, **`r sum(table_s2$ID %in% top1000_RS_vs_M)`** were reproduced. Scatter plots of the actual values show a correlation.
 
 ```{r reproduced_tables2, dev='png', fig.width=8, fig.height=8, fig.show='hold', tidy=FALSE}
 # scatter plot correlation of the 4 columns in table_S2 vs. the reproduced numbers.
@@ -414,7 +414,7 @@ hist(limma_p_org[table_s5$Probe,1], breaks=100, add=T, freq=T, border=thiscolors
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
-A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic gives more similar p-values as in Table S5, and for the remainder of this report, this is what will be used.
+A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic gives more similar p-values as in Table S5. We assume "GA-generic" or equivalent was used by Towfic et al., and for the remainder of this report, this is what will be used.
 
 ```{r dev='png', fig.width=10, fig.height=6, fig.show='hold', tidy=FALSE}
 cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)  
@@ -438,7 +438,7 @@ This concludes the reproduction. We managed to reproduce the average expressions
 <br/>
 <br/>
 
-### Analysis without ComBat, and consequences on the results
+### Analysis without ComBat, and consequences for the results
 
 Table S2 has average expression values for the conditions, but includes no values about how much trust we can have in those average expressions (i.e significance tests, confidence intervals etc.).
 
@@ -460,8 +460,8 @@ table(p.adjust(limma_p_alt , method="fdr")<0.05, p.adjust(limma_p_woc , method="
 ```
 
 The number of significant probes using the given FDR threshold of 0.05 when batch effect is handled by LIMMA is 
-**`r sum(p.adjust(limma_p_woc , method="fdr")<0.05)`**. This is much lower compared to when ComBat is applied, 
-**`r sum(p.adjust(limma_p_alt , method="fdr")<0.05)`**.  The p-value distribution is still skewed, but not as much.
+**`r sum(p.adjust(limma_p_woc , method="fdr")<0.05)`**. This is much lower compared to when ComBat is applied (
+**`r sum(p.adjust(limma_p_alt , method="fdr")<0.05)`** ).  The p-value distribution is still skewed, but not as much.
 
 Alternatively, limma´s <i>duplicateCorrelation</i> function can be used to treat batch as a random effect. This could arguably be a more powerful approach, and a short investigation is warranted.
 
@@ -482,7 +482,7 @@ thiscolors = c("red", "blue", "black")
 hist(limma_p_alt, breaks=100, freq=T, border=thiscolors[1], main="Alternative P-value distributions for DP vs. N", xlab="P-values")
 hist(limma_p_woc, breaks=100, add=T, freq=T, border=thiscolors[2])
 hist(limma_p_mixed, breaks=100, add=T, freq=T, border=thiscolors[3])
-legend("topright", legend=c("ComBat adjusted", "LIMMA adjusted as factor", "LIMMA adjusted as random effect"), text.col=thiscolors)
+legend("topright", legend=c("ComBat adjusted", "batch handled by LIMMA as factor", "batch handled by LIMMA as random effect"), text.col=thiscolors)
 ```
 
 For this data set, the two LIMMA methods will give quite similar results, at least compared to the ComBat adjusted approach. We will only use the first, "Blocking", in subsequent comparisons.
@@ -552,7 +552,7 @@ thiscolors = c("red", "blue", "black")
 hist(limma_p_rand_combat, breaks=100, freq=T, border=thiscolors[1], main="P-values, Random numbers for DP vs. N")
 hist(limma_p_rand_nocombat, breaks=100, add=T, freq=T, border=thiscolors[2])
 hist(limma_p_rand_batchblocked, breaks=100, add=T, freq=T, border=thiscolors[3])
-legend("topright", legend=c("ComBat adjusted", "Limma adjusted", "No adjustment"), text.col=thiscolors)
+legend("topright", legend=c("ComBat adjusted", "batch handled by Limma as factor", "No adjustment"), text.col=thiscolors)
 ```
 
 The p-value plots from the ComBat adjusted random data shows a skewed distribution, although not as much as for the real data. The random data has no batch effect or other effects like the real data which might affect the ComBat adjustment.
@@ -563,7 +563,7 @@ The p-value plots from the ComBat adjusted random data shows a skewed distributi
 **Permuted labels**
 
 
-Another sanity check is by permuting the DP (GA) and N(generic) labels and observe changes in the results. The real data are used ´, and in order to retain the batch effect, we will only swap labels within a batch. This should in theory give fewer significant probes.
+Another sanity check is by permuting the DP (GA) and N(generic) labels and observe changes in the results. The real data are used, and in order to retain the batch effect, we will only swap labels within a batch. This should in theory give fewer significant probes.
 
 ```{r results='hide'}
 source("../../commonscripts/helperfunctions.r")
@@ -623,7 +623,7 @@ for(i in 1:length(permuted_pvalcounts))
 legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
 ```
 
-Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not associated with the N and DP labels, but a rather an advers effect of the ComBat adjustments.
+Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not associated with the N and DP labels, but rather an adverse effect of the ComBat adjustments.
 
 
 <br/>
