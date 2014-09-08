@@ -14,19 +14,19 @@ The format of the report is html, but the underlying r-code and text is availabl
 rerunnable. Run knit2html or the Rstudio knitr integration on the individual .rmd files to re-produce the plots and html.
 
 
-### Johnson2007/
+### reanalysis/Johnson2007/
 
 Reanalysis and alternative analysis of "Data set 2" from the original ComBat article:
 Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray
 expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
 
-### Towfic2014/
+### reanalysis/Towfic2014/
 
 Reanalysis and alternative analysis of parts of Towfic et al.(2014, January). Comparing
 the biological impact of glatiramer acetate with the biological impact of a generic. PloS
 one 9(1), e83757.
 
-### Leek2012/
+### reanalysis/Leek2012/
 
 Full random number re-run of the tutorial from the sva package, Leek JT,
 Johnson WE, Parker HS, Jaffe AE, Storey JD.(2012) The sva package for removing batch
