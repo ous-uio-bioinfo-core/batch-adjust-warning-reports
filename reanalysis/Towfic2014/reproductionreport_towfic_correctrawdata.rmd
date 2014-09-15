@@ -26,7 +26,7 @@ This document has five main parts
 ```{r runparameters, results='hide', echo=FALSE}
 starttime = Sys.time()
 debug = FALSE
-downloaddata=TRUE
+downloaddata=FALSE
 set.seed(100)
 ```
 
@@ -122,92 +122,44 @@ print.xtable(xtable ( table(sampleannotation[sampleannotation$covariate %in% c("
 <br/>
 <br/>
 
-
 > The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
 
-The processed data from the above GEO deposit ("Series Matrix File") is from another publication which did not processes the data as described in Towfic et al. (personal communication). The lesser processed data in GEO linked to as [GSE40566_non_normalized.txt.gz](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz) in the "Supplementary file" section was thus used in this report.
-
-Probe annotation was also found in the "Supplementary file" section as [GSE40566_RAW.tar](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file).
+This was not used in here, but instead the file FORGEO_master_matrix_PLOS_ONE_response.csv was used (a tab separated text version of the excel file).
 
 A recap of the important input files used in this report:
 
 - **sampleannotation.csv** holds the important sample/batch/covariate assignment. Compiled based on information in Towfic et al, the GEO deposit and personal communication.
-- **GSE40566_non_normalized.txt** the measurements in a sample vs probe matrix. From the [GEO deposit](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz). Not in github.
-- **GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt** the probe annotation needed for the data row to probe to gene matching. From the GEO deposit inside the [GSE40566_RAW.tar](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file). Not in github.
+- **FORGEO_master_matrix_PLOS_ONE_response.csv** the measurements in a sample vs probe matrix. From the [GEO deposit](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz). Not in github.
+
 
 Reading the data.
-
 ```{r}
-if(downloaddata)
-{
-  temp = tempfile()
-  download.file(url="http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz",
-              destfile=temp, mode = "wb")
-  rawdata = read.table(temp, sep="\t", header=TRUE, stringsAsFactors=FALSE)
-  unlink(temp)
-  
-  temp = tempfile()
-  download.file(url="http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file",
-              destfile=temp, mode = "wb")
-  tardirtemp = file.path(tempdir(), "annottmp")
-  dir.create(tardirtemp)
-  untar(temp, exdir = tardirtemp, tar="internal")
-  rawannotation = read.table(paste(tardirtemp ,"/GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt.gz", sep=""), 
-                             sep="\t", header=TRUE, stringsAsFactors=FALSE, 
-                             skip=8, comment.char="", quote="", fill=TRUE)
-  
-  unlink(temp)
-  unlink(tardirtemp, recursive=TRUE )
-}else{
-  
-  # if download did not work change downloaddata to FALSE  
-  # download data from the GEO deposit
-  # unpack and place files in a folder named "not_in_github"
-  rawdata = read.table("not_in_github/GSE40566_non_normalized.txt", 
-                       sep="\t", header=TRUE, stringsAsFactors=FALSE)
+alt_annot = read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=FALSE, stringsAsFactors=FALSE, fill=TRUE, nrows=6)
+alt_annot=t(alt_annot[,c(-1,-2)])
+colnames(alt_annot) = alt_annot[1,]
+alt_annot=alt_annot[-1,]
+alt_annot=as.data.frame(alt_annot, stringsAsFactors=FALSE)
+#need to split arrayid slot and the last number 1or2 which probably is subarray.
+tmp = data.frame(do.call('rbind', strsplit(alt_annot[, "Array Address ID"],'_')), stringsAsFactors=FALSE)
+alt_annot$slot=tmp[,2]
+alt_annot$subarray=tmp[,3]
 
-  # the probe annotation file found inside GSE40566_RAW.tar
-  rawannotation = read.table("not_in_github/GPL6887_MouseWG-6_V2_0_R3_11278593_A.txt.gz", 
-                             sep="\t", header=TRUE, stringsAsFactors=FALSE, 
-                             skip=8, comment.char="", quote="", fill=TRUE)
-}
+alt_data=read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=TRUE, stringsAsFactors=FALSE, fill=TRUE, skip=5)
+rownames(alt_data)=alt_data[,2]
+alt_data = alt_data[,c(-1,-2,-3)]
+alt_data = as.matrix(alt_data)
+
+#combine the two subarray coloumns
+datamatrix_raw = avearrays(alt_data, paste(alt_annot$Chip, alt_annot$slot, sep="_") )
+
+#sort as in the sampleannotation.
+a =match( paste(sampleannotation$chip, sampleannotation$slot, sep="_"),
+			 colnames(datamatrix_raw))
+datamatrix_raw = datamatrix_raw[,a]
+rm(a)
+
 ```
 
-Some formatting is needed to match the probe information to the measurements and the measurements to the sample information.
-
-```{r tidy=FALSE}
-# annotation file has two separate tables, one for experimental and one at the end for controls.
-# splitting and fixing the tables:
-tmp =  rawannotation$Species=="Mus musculus"
-experimentalannot = rawannotation[tmp,]
-experimentalannot$Array_Address_Id = as.numeric(experimentalannot$Array_Address_Id)
-controlannot = rawannotation[!tmp,]
-dimnames(controlannot)[[2]] = rawannotation[rawannotation[,2]=="Array_Address_Id",]
-controlannot$Array_Address_Id = suppressWarnings(as.numeric(controlannot$Array_Address_Id))
-controlannot = controlannot[!is.na(controlannot$Array_Address_Id),]
-controlannot=controlannot[,1:6]
-probeannotation = merge(experimentalannot, controlannot, all=TRUE )
-#dim(probeannotation)
-rm(tmp, experimentalannot, controlannot)
-
-probeannotation = probeannotation[!duplicated(probeannotation$Array_Address_Id),]
-probeannotation = probeannotation[probeannotation$Array_Address_Id %in% rawdata$ID_REF, ] # 
-probeannotation$Symbol=tolower(probeannotation$Symbol)
-dimnames(probeannotation)[[1]] = probeannotation$Probe_Id
-#dim(probeannotation)
-
-#sort and filter probe and data similarly.
-datamatrix_raw = as.matrix(rawdata[,-1])
-datamatrix_raw = datamatrix_raw[match( probeannotation$Array_Address_Id , rawdata$ID_REF), ]
-dimnames(datamatrix_raw)[[1]] = probeannotation$Probe_Id
-#dim(datamatrix_raw)
-#dim(probeannotation)
-
-#and match data to samples.
-#table(sampleannotation$code %in% dimnames(datamatrix_raw)[[2]])# check
-#table(dimnames(datamatrix_raw)[[2]] %in% sampleannotation$code)# check
-datamatrix_raw = datamatrix_raw[, match(sampleannotation$code , dimnames(datamatrix_raw)[[2]])]
-```
 
 Several tables with results are presented in the Supporting Information in Towfic et al. We are aiming to reproduce two of these. Unfortunately, they were only presented in a pdf-format not easily parsed by a computer. We had to resort to an ad hoc method of cut-and-paste from pdf into text files which were somewhat polluted by pdf-formatting code. For some tables, about 10% of the rows will be lost, but the rest will suffice for our purpose.
 
@@ -239,6 +191,7 @@ table_s5$Fold_Change = as.numeric(table_s5$Fold_Change)
 ```
 <br/>
 <br/>
+
 
 ### Reproduce some of the original results
 
@@ -560,81 +513,8 @@ The p-value plots from the ComBat adjusted random data shows a skewed distributi
 <br/>
 <br/>
 
-**Permuted labels**
-
-
-Another sanity check is by permuting the DP (GA) and N(generic) labels and observe changes in the results. The real data are used, and in order to retain the batch effect, we will only swap labels within a batch. This should in theory give fewer significant probes.
-
-```{r results='hide'}
-source("../../commonscripts/helperfunctions.r")
-
-nshuffleddatasets = 10
-datamatrices_permuted = list()
-changedlabels=vector()
-for(i in 1:nshuffleddatasets)
-{
-  x = shufflesamplesinbatch( sampleannotation$code, sampleannotation$chip, sampleannotation$covariate, c("N", "DP") )
-  changedlabels[i] = (  sum(sampleannotation[,"covariate"] != sampleannotation[x,"covariate"]  ))  # see how many got change. Has 11 N's)  
-  datamatrices_permuted[[i]] = as.matrix(ComBat(dat=datamatrices[["real_qnorm"]][, x], 
-                                                batch=sampleannotation$chip, 
-                                                mod=combatmod, 
-                                                numCovs=NULL, 
-                                                par.prior=TRUE, 
-                                                prior.plots=FALSE))
-}
-```
-
-**`r nshuffleddatasets`** permutations were created and batch adjusted with ComBat.
-
-Then perform the limma test on the ComBat adjusted data as was done for the real data.
-
-```{r}
-permuted_pvalcounts=list()
-overviewtab = data.frame(permutation=1:nshuffleddatasets, changedlabels=changedlabels, significantprobes=NA)
-for(i in 1:nshuffleddatasets)
-{ 
-  group = factor(sampleannotation$covariate)
-  design = model.matrix(~0 + group)
-  fit = lmFit(datamatrices_permuted[[i]], design)
-  cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)  
-  fit2 = contrasts.fit(fit, cont.matrix)  
-  this_p = eBayes(fit2)$p.value
-  permuted_pvalcounts[[i]] = hist(this_p, plot=FALSE, breaks=100)$counts 
-  overviewtab$significantprobes[i] =sum(p.adjust(this_p, method="fdr")<0.05)
-}
-print(overviewtab)
-rm(overviewtab, group, design, fit, cont.matrix, fit2, this_p)
-```
-
-The table lists the number of labels that are changed compared to the real ones for each permutation. Remember that the total number of N (generic) samples is **`r sum(sampleannotation$covariate=="N")`**. So even when about half of those are swapped with DP(GA), the ComBat adjusted data produces many significant genes. The number of significant genes using the same 0.05 FDR cut-off for the real labels was **`r sum(p.adjust(limma_p_alt , method="fdr")<0.05)`**.
-
-The P-value distribution can also be plotted.
-
-```{r, dev='svg', fig.width=8, fig.height=8, tidy=FALSE}
-real_pvalcounts=hist(limma_p_alt, plot=FALSE, breaks=100)$counts
-plot((1:20)/100, real_pvalcounts[1:20], col="red",
-     main="P-values, permuted real data", 
-      xlab="p-value", ylab="Frequency", type="l", lwd=2, 
-      ylim=c(0, max(unlist( c(permuted_pvalcounts,real_pvalcounts)))))
-for(i in 1:length(permuted_pvalcounts))
-{
-  lines((1:20)/100,permuted_pvalcounts[[i]][1:20], col="blue")
-}
-legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
-```
-
-Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not associated with the N and DP labels, but rather an adverse effect of the ComBat adjustments.
-
-
 <br/>
 <br/>
-
-** Control probes found as differentially expressed **
-
-[Table S5](http://www.plosone.org/article/fetchSingleRepresentation.action?uri=info:doi/10.1371/journal.pone.0083757.s013) from Towfic et al. lists the probes with the most average change in expressed between DP(GA) and N(generic) with the results from several test for differential expression. Two of the probes listed and found to be differentially expressed are control probes, (ILMN_1343049 and ILMN_1343048). These are not targeting mouse RNA, but instead target added alien RNA of a known concentration, and are intended to be used in quality control of the hybridization. When these come up in the end of an analysis as differentially expressed genes, something must have gone wrong a long the way. The use of ComBat are one possible explanation since it is able to find differentially expressed genes also for random numbers.
-
-
-```
 
 ### References
 
