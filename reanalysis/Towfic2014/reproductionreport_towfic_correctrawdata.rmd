@@ -124,7 +124,7 @@ print.xtable(xtable ( table(sampleannotation[sampleannotation$covariate %in% c("
 
 > The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
 
-This was not used in here, but instead the file FORGEO_master_matrix_PLOS_ONE_response.csv was used (a tab separated text version of the excel file).
+The above GEO accession was not used in Towfic et al. as indicated. Instead the file FORGEO_master_matrix_PLOS_ONE_response.csv(a tab separated text version of the excel file)  was provided by the authors and used .
 
 A recap of the important input files used in this report:
 
@@ -159,7 +159,8 @@ datamatrix_raw = datamatrix_raw[,a]
 rm(a)
 
 ```
-
+<br/>
+<br/>
 
 Several tables with results are presented in the Supporting Information in Towfic et al. We are aiming to reproduce two of these. Unfortunately, they were only presented in a pdf-format not easily parsed by a computer. We had to resort to an ad hoc method of cut-and-paste from pdf into text files which were somewhat polluted by pdf-formatting code. For some tables, about 10% of the rows will be lost, but the rest will suffice for our purpose.
 
@@ -304,44 +305,25 @@ There must be a typo in the figure text, they meant "Comparison of expression in
 
 > To find differentially expressed probes between generic and GA, we utilized various statistical tests at the probe level and merged the results across the different methods. <cite> Towfic et al.
 
-How the fold change was calculated is not explained. A common way is to take the difference of geometric means that were calculated for Table S2 above.
+How the fold change was calculated is not explained. After some trials, the transformation below gave the best correlation with the fold changes listed in Table S5.
 
 ```{r}
 foldchange_DP_N = meanDP - meanN
+foldchange_DP_N = 2^foldchange_DP_N # using non.log values
+foldchange_DP_N[foldchange_DP_N<1]=  -(1/foldchange_DP_N[foldchange_DP_N<1])  # downregulation are inverted and made negative.
 ```
 
 These reproduced fold changes can be compared to the probes listed in table S5.
 
-```{r dev='png', fig.width=10, fig.height=5, fig.show='hold', tidy=FALSE}
-par(mfrow=c(1, 2))
+```{r dev='png', fig.width=5, fig.height=5, fig.show='hold', tidy=FALSE}
+
 plot(table_s5$Fold_Change, foldchange_DP_N[table_s5$Probe],
      pch=".", xlab="Original Table S5", ylab="Reproduced",
      main="FC comparison")
 
-thiscolors = c("black", "red")
-hist(foldchange_DP_N, breaks=100, freq=F, border=thiscolors[1], main="Reproduced FC for DP vs. N")
-hist(foldchange_DP_N[table_s5$Probe], breaks=100, add=T, freq=F, border=thiscolors[2])
-legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
-The first plot reveals that the reproduced fold changes are much more compressed than the ones in Table S5.
-There seems to be two linear relationship, one for negative FC's and another for positive FC's. They seem to have different intercepts, but comparable slope. The second plot shows that the reproduced fold changes for the probes listed in Table S5 are clearly more extreme than the rest.  
-
-The fold changes in table 5S do not match the fold changes computed from the average expression values listed in table S2 either, as a plot will show;
-
-```{r dev='png', fig.width=8, fig.height=8, fig.show='hold', tidy=FALSE}
-# table S2 has the AVG for both DP and N listed
-fc_table_s2 = table_s2$AVG_GA - table_s2$AVG_generic
-names(fc_table_s2) = table_s2$ID
-x = table_s5$Fold_Change
-y = fc_table_s2[table_s5$Probe]
-lim =c( min(   c(min(x, na.rm=T), min(y, na.rm=T))  ), max( c(max(x, na.rm=T), max(y, na.rm=T)) ))
-plot(x, y , ylim=lim, xlim=lim, pch="." ,  xlab="Table_S5", ylab="Table_S2",
-     main="FC comparison, given values.") #  almost perfect match with offset.
-rm(x, y, lim)
-```
-
-There seems to be some inconsistency between the fold changes in table S5 and the reproduced ones. However, it is the confidence i.e p-values that are affected by the use of ComBat. 
+There seems to be decent consistency between the fold changes in table S5 and the reproduced ones. However, it is the confidence i.e p-values that are affected by the use of ComBat. 
 
 The rest of table S5 are p-values, and we will try to reproduce the ones from limma.
 
@@ -386,7 +368,7 @@ legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolor
 
 The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report, since they showed a similar pattern as for the limma p-values.
 
-This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
+This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The fold changes and p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
 
 <br/>
 <br/>
