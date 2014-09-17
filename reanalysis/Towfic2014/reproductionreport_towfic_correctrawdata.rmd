@@ -34,7 +34,7 @@ set.seed(100)
 <br/>
 
 ```{r, results='hide', message=FALSE}
-includelibs = c("sva", "limma", "xtable")
+includelibs = c("sva", "limma", "xtable", "statmod")
 tmp=lapply(includelibs, require, character.only=T)
 if(any(!unlist(tmp)))
 {
@@ -129,7 +129,7 @@ The above GEO accession was not used in Towfic et al. as indicated. Instead the 
 A recap of the important input files used in this report:
 
 - **sampleannotation.csv** holds the important sample/batch/covariate assignment. Compiled based on information in Towfic et al, the GEO deposit and personal communication.
-- **FORGEO_master_matrix_PLOS_ONE_response.csv** the measurements in a sample vs probe matrix. From the [GEO deposit](http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE40566&format=file&file=GSE40566%5Fnon%5Fnormalized%2Etxt%2Egz). Not in github.
+- **FORGEO_master_matrix_PLOS_ONE_response.csv** the measurements in a sample vs probe matrix. Not in github.
 
 
 Reading the data.
@@ -305,21 +305,18 @@ There must be a typo in the figure text, they meant "Comparison of expression in
 
 > To find differentially expressed probes between generic and GA, we utilized various statistical tests at the probe level and merged the results across the different methods. <cite> Towfic et al.
 
-How the fold change was calculated is not explained. After some trials, the transformation below gave the best correlation with the fold changes listed in Table S5.
+How the fold change was calculated is not explained. After some trials and error, it seems that down regulation is inverted and made negative.
 
-```{r}
-foldchange_DP_N = meanDP - meanN
-foldchange_DP_N = 2^foldchange_DP_N # using non.log values
-foldchange_DP_N[foldchange_DP_N<1]=  -(1/foldchange_DP_N[foldchange_DP_N<1])  # downregulation are inverted and made negative.
-```
-
-These reproduced fold changes can be compared to the probes listed in table S5.
+In order to correlate them with the reproduced fold changes, we convert them log2 values.
 
 ```{r dev='png', fig.width=5, fig.height=5, fig.show='hold', tidy=FALSE}
-
-plot(table_s5$Fold_Change, foldchange_DP_N[table_s5$Probe],
-     pch=".", xlab="Original Table S5", ylab="Reproduced",
-     main="FC comparison")
+x = table_s5$Fold_Change
+x[x<0] = 1/-x[x<0]
+table_s5_log2_foldchange = log2(x)
+foldchange_DP_N = meanDP - meanN
+plot(table_s5_log2_foldchange, foldchange_DP_N[table_s5$Probe],
+     pch=".", xlab="Original Table S5 as log2", ylab="Reproduced",
+     main="log2 FC comparison")
 
 ```
 
@@ -356,7 +353,7 @@ cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_alt = eBayes(fit2)
 limma_p_alt = limma_ret_alt$p.value
-#names(limma_p_alt) = names(limma_ret_alt$Amean)
+names(limma_p_alt) = names(limma_ret_alt$Amean)
 par(mfrow=c(1, 2))
 plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe,1], xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
@@ -492,8 +489,21 @@ legend("topright", legend=c("ComBat adjusted", "batch handled by Limma as factor
 
 The p-value plots from the ComBat adjusted random data shows a skewed distribution, although not as much as for the real data. The random data has no batch effect or other effects like the real data which might affect the ComBat adjustment.
 
+
 <br/>
 <br/>
+
+**Permuted labels**
+
+This sanity check is dropped in this report for the time being due to its long run time. It will be included later.
+
+<br/>
+<br/>
+
+**Control probes found as differentially expressed**
+
+[Table S5](http://www.plosone.org/article/fetchSingleRepresentation.action?uri=info:doi/10.1371/journal.pone.0083757.s013) from Towfic et al. lists the probes with the most average change in expressed between DP(GA) and N(generic) with the results from several test for differential expression. Two of the probes listed and found to be differentially expressed are control probes, (ILMN_1343049 and ILMN_1343048). These are not targeting mouse RNA, but instead target added alien RNA of a known concentration, and are intended to be used in quality control of the hybridization. When these come up in the end of an analysis as differentially expressed genes, something must have gone wrong a long the way. The use of ComBat are one possible explanation since it is able to find differentially expressed genes also for random numbers.
+
 
 <br/>
 <br/>
