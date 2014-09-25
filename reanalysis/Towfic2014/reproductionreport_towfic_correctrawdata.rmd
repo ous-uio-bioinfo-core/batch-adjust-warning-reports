@@ -66,10 +66,48 @@ Communication with the corresponding author yielded this explanation
 Based on these descriptions and the annotation for the GEO deposit, we compiled a more complete sample annotation file (sampleannotation.csv).
 
 ```{r results="asis"}
-sampleannotation = read.table("data/sampleannotation.csv", sep="\t", header=TRUE,  stringsAsFactors=FALSE)
-sampleannotation$code = make.names(sampleannotation$code)
-sampleannotation$chip = as.character(sampleannotation$chip)
-dimnames(sampleannotation)[[1]] = sampleannotation$code
+
+alt_annot = read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=FALSE, stringsAsFactors=FALSE, fill=TRUE, nrows=6)
+alt_annot=t(alt_annot[,c(-1,-2)])
+colnames(alt_annot) = alt_annot[1,]
+alt_annot=alt_annot[-1,]
+alt_annot=as.data.frame(alt_annot, stringsAsFactors=FALSE)
+#need to split arrayid slot and the last number 1or2 which probably is subarray.
+tmp = data.frame(do.call('rbind', strsplit(alt_annot[, "Array Address ID"],'_')), stringsAsFactors=FALSE)
+alt_annot$slot=tmp[,2]
+alt_annot$subarray=tmp[,3]
+
+sampleannotation = alt_annot
+# change some names here so the rest of the script can use the old names.
+colnames(sampleannotation)[colnames(sampleannotation)=="Chip"] = "chip"
+colnames(sampleannotation)[colnames(sampleannotation)=="ID"] = "covariate"
+sampleannotation$covariate = make.names(sampleannotation$covariate)
+sampleannotation$covariate[sampleannotation$covariate=="GA.DP"] = "DP"
+sampleannotation$covariate[sampleannotation$covariate=="GA.Q"] = "N"
+sampleannotation$covariate[sampleannotation$covariate=="Medium"] = "M"
+sampleannotation$covariate[sampleannotation$covariate=="GA.RS"] = "RS"
+rownames(sampleannotation) = sampleannotation[, "Array Address ID"]
+#table(sampleannotation$covariate)
+oldsampleannotation = read.table("data/sampleannotation.csv", sep="\t", header=TRUE,  stringsAsFactors=FALSE)
+oldsampleannotation$code = make.names(oldsampleannotation$code)
+oldsampleannotation$chip = as.character(oldsampleannotation$chip)
+dimnames(oldsampleannotation)[[1]] = oldsampleannotation$code
+colnames(oldsampleannotation)[colnames(oldsampleannotation)=="covariate"] = "oldcovariate"
+
+### checking difference between old covariate and new.
+#comptab = merge(sampleannotation, oldsampleannotation)
+#a = comptab$covariate=="DP"
+#table(comptab$covariate[a]==comptab$oldcovariate[a])
+#a = comptab$covariate=="N"
+#table(comptab$covariate[a]==comptab$oldcovariate[a])
+#a = comptab$covariate=="M"
+#table(comptab$covariate[a]==comptab$oldcovariate[a])
+#a = comptab$covariate=="RS"
+#table(comptab$covariate[a]==comptab$oldcovariate[a])
+#a = comptab$oldcovariate=="RS"
+#table(comptab$covariate[a]==comptab$oldcovariate[a])
+#comptab[a,]
+# RS has 3 less samples (GA.RS.HD)
 
 print.xtable(xtable ( head(sampleannotation), caption="Head of sampleannotation"), 
 			comment = TRUE,
@@ -91,7 +129,7 @@ The naming convention seems to differ slightly between the Table S1 and the text
 
 ```{r}
 # take out 3 samples that are not assigned to a geoaccession. Failed QC?
-sampleannotation = sampleannotation[!is.na(sampleannotation$geoaccession),] 
+#sampleannotation = sampleannotation[!is.na(sampleannotation$geoaccession),] 
 ```
 
 The batch/covariate design shows many batches and covariate groups.
@@ -134,27 +172,22 @@ A recap of the important input files used in this report:
 
 Reading the data.
 ```{r}
-alt_annot = read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=FALSE, stringsAsFactors=FALSE, fill=TRUE, nrows=6)
-alt_annot=t(alt_annot[,c(-1,-2)])
-colnames(alt_annot) = alt_annot[1,]
-alt_annot=alt_annot[-1,]
-alt_annot=as.data.frame(alt_annot, stringsAsFactors=FALSE)
-#need to split arrayid slot and the last number 1or2 which probably is subarray.
-tmp = data.frame(do.call('rbind', strsplit(alt_annot[, "Array Address ID"],'_')), stringsAsFactors=FALSE)
-alt_annot$slot=tmp[,2]
-alt_annot$subarray=tmp[,3]
 
-alt_data=read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=TRUE, stringsAsFactors=FALSE, fill=TRUE, skip=5)
+
+alt_data=read.table("not_in_github/FORGEO_master_matrix_PLOS_ONE_response.csv", sep="\t", header=TRUE, stringsAsFactors=FALSE, fill=TRUE, skip=5, check.names=FALSE)
 rownames(alt_data)=alt_data[,2]
 alt_data = alt_data[,c(-1,-2,-3)]
 alt_data = as.matrix(alt_data)
 
 #combine the two subarray coloumns
-datamatrix_raw = avearrays(alt_data, paste(alt_annot$Chip, alt_annot$slot, sep="_") )
+#datamatrix_raw = avearrays(alt_data, paste(alt_annot$Chip, alt_annot$slot, sep="_") )
+
+datamatrix_raw = alt_data
 
 #sort as in the sampleannotation.
-a =match( paste(sampleannotation$chip, sampleannotation$slot, sep="_"),
-			 colnames(datamatrix_raw))
+#a =match( paste(sampleannotation$chip, sampleannotation$slot, sep="_"),
+#			 colnames(Array Address ID))
+a = match(sampleannotation[, "Array Address ID"], colnames(datamatrix_raw))
 datamatrix_raw = datamatrix_raw[,a]
 rm(a)
 
@@ -326,36 +359,20 @@ The rest of table S5 are p-values, and we will try to reproduce the ones from li
 
 > Next, we utilized Linear Models for Microarray (LIMMA) data analysis [23], [24] R package, part of the Bioconductor framework [25], to compare generic and GA samples, fitting a linear model that adjusts for fixed effect from medium (Effect = (GA-generic) – (generic-Medium)). The coefficients for the linear model were tested for significance using a modified t-test (taking into account standard deviation)...<cite> Towfic et al.
 
-The formula "Effect = (GA-generic) - (generic-Medium)" seems strange.
+The formula "Effect = (GA-generic) - (generic-Medium)" seems strange. And this was a typo. "Effect = (GA-Medium) - (generic-Medium)" was used. This is equivalent to "GA-generic", which we will use.
+
 
 ```{r dev='png', fig.width=10, fig.height=6, fig.show='hold', tidy=FALSE}
 group = factor(sampleannotation$covariate)
 design = model.matrix(~0 + group)
 fit = lmFit(datamatrices[["real_combat_covariates"]], design)
-cont.matrix = makeContrasts ( contrasts="(groupDP-groupN) - (groupN-groupM)", levels=design)  
-fit2 = contrasts.fit(fit, cont.matrix)
-limma_ret_org = eBayes(fit2)
-limma_p_org = limma_ret_org$p.value
-#names(limma_p_org) = names(limma_ret_org$Amean)
-par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_org[table_s5$Probe,1], xlab="Original Table S5", 
-     ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
-thiscolors = c("black", "red")
-hist(limma_p_org, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
-hist(limma_p_org[table_s5$Probe,1], breaks=100, add=T, freq=T, border=thiscolors[2])
-legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
-```
-
-A lot of the reproduced p-values are high for the probes in Table S5. A more straightforward contrast of Effect = GA-generic gives more similar p-values as in Table S5. We assume "GA-generic" or equivalent was used by Towfic et al., and for the remainder of this report, this is what will be used.
-
-```{r dev='png', fig.width=10, fig.height=6, fig.show='hold', tidy=FALSE}
 cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)  
 fit2 = contrasts.fit(fit, cont.matrix)
 limma_ret_alt = eBayes(fit2)
 limma_p_alt = limma_ret_alt$p.value
 names(limma_p_alt) = names(limma_ret_alt$Amean)
 par(mfrow=c(1, 2))
-plot(table_s5[,"limma_p"], limma_p_alt[table_s5$Probe,1], xlab="Original Table S5", 
+plot(log2(table_s5[,"limma_p"]), log2(limma_p_alt[table_s5$Probe,1]), xlab="Original Table S5", 
      ylab="Reproduced", main="LIMMA P-values from table S5 vs. reproduced")
 thiscolors = c("black", "red")
 hist(limma_p_alt, breaks=100, freq=T, border=thiscolors[1], main="Reproduced LIMMA p-values for DP vs. N")
@@ -363,9 +380,11 @@ hist(limma_p_alt[table_s5$Probe,1], breaks=100, add=T, freq=T, border=thiscolors
 legend("topright", legend=c("All probes", "Table S5 probes"), text.col=thiscolors)
 ```
 
-The reproduced p-values for the Table S5 probes are not exactly as the listed ones, but still mostly low. In addition to the limma test, Towfic et al. performed similar tests for significant probes between generic and GA using several other methods. We tried several of them as well, but have skipped them in this report, since they showed a similar pattern as for the limma p-values.
+The reproduced p-values for the Table S5 probes are exactly as the listed ones,
 
-This concludes the reproduction. We managed to reproduce the average expressions listed in Table S2 pretty well. The fold changes and p-values in Table S5 were with some reasonable interpretation reproduced. The results can now be compared to the same analysis using an alternative to ComBat.
+This concludes the reproduction. 
+
+The results can now be compared to the same analysis using an alternative to ComBat.
 
 <br/>
 <br/>
@@ -392,8 +411,7 @@ table(p.adjust(limma_p_alt , method="fdr")<0.05, p.adjust(limma_p_woc , method="
 ```
 
 The number of significant probes using the given FDR threshold of 0.05 when batch effect is handled by LIMMA is 
-**`r sum(p.adjust(limma_p_woc , method="fdr")<0.05)`**. This is much lower compared to when ComBat is applied (
-**`r sum(p.adjust(limma_p_alt , method="fdr")<0.05)`** ).  The p-value distribution is still skewed, but not as much.
+**`r sum(p.adjust(limma_p_woc , method="fdr")<0.05)`**. When ComBat is applied **`r sum(p.adjust(limma_p_alt , method="fdr")<0.05)`** are found.  The p-value distribution is still skewed, but not as much.
 
 Alternatively, limma´s <i>duplicateCorrelation</i> function can be used to treat batch as a random effect. This could arguably be a more powerful approach, and a short investigation is warranted.
 
@@ -417,7 +435,6 @@ hist(limma_p_mixed, breaks=100, add=T, freq=T, border=thiscolors[3])
 legend("topright", legend=c("ComBat adjusted", "batch handled by LIMMA as factor", "batch handled by LIMMA as random effect"), text.col=thiscolors)
 ```
 
-For this data set, the two LIMMA methods will give quite similar results, at least compared to the ComBat adjusted approach. We will only use the first, "Blocking", in subsequent comparisons.
 
 <br/>
 <br/>
