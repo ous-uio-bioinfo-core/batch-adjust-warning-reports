@@ -310,7 +310,7 @@ plot(table_s2$AVG_GA, meanDP[table_s2$ID], pch=".")
 plot(table_s2$AVG_generic, meanN[table_s2$ID], pch=".")
 ```
 
-Original values from table S2 on X-axis, reproduced values on Y-axis. The values in Table S2 is almost reproduced.
+Original values from table S2 on X-axis, reproduced values on Y-axis. The values in Table S2 are almost reproduced.
 
 <br/>
 <br/>
