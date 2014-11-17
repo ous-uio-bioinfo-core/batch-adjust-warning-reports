@@ -1,0 +1,271 @@
+---
+title: "Alternative Overview Figures"
+author: "Vegard"
+date: "Thursday, October 30, 2014"
+output: html_document
+---
+
+
+Two scenarios
+
+- Two groups, three batches. False Positives due to batch and ComBat.
+- Three groups, two batches. False negatives due to batch, false positve due to mean adjust.
+
+
+
+### False Positives due to batch and ComBat.
+
+lage data set, 1000gener, 10+10
+ingen gruppe effect eller batch effect.
+
+1. plotte, målineg + meanstrek + CI + FC + p
+
+2.
+Dele i batcher 9+2+9, legge til batch effect.
+plotte, målineg + meanstrek + CI + FC + p med batch separator i plottet.
+
+3. Combat adjust
+plotte, målineg + meanstrek + CI + FC + p uten batch separator i plottet.
+
+4 plot med 2way anova og least square. Funker vel neppe med 1+1 bathen?
+
+```{r}
+library(sva)
+source("commonscripts/helperfunctions.r")
+source("commonscripts/boxplot_function_v3.r")
+library(limma)
+library(lsmeans)
+
+
+set.seed(100)
+ngenes = 1000
+index=1
+sa = createsampleannotation(  list(c(8,0), c(2,2), c(0,8)), as.factors=TRUE)
+matrix_true = matrix(rnorm(ngenes * nrow(sa), mean=5, sd=1), nrow=ngenes, ncol=nrow(sa))
+
+```
+
+
+```{r, dev="png"}
+plot_one_gene(matrix_true[index,], group=sa$group, main=paste("True values"),
+              estimatemethod="CI")
+```
+
+
+Add batch effect.
+```{r, dev="png"}
+matrix_batcheffect = matrix_true
+matrix_batcheffect[,sa$batch==1] = matrix_batcheffect[,sa$batch==1]+1
+matrix_batcheffect[,sa$batch==3] = matrix_batcheffect[,sa$batch==3]-1
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch affected values"), estimatemethod="CI")
+```
+
+Adjust for batch effect.
+```{r, dev="png"}
+
+mod0 = model.matrix(~1,data=sa)
+mod = model.matrix(~as.factor(sa$group))
+
+matrix_batchadjusted = ComBat(dat=matrix_batcheffect, batch=as.factor(sa$batch), 
+                      mod=mod, numCovs=NULL, 
+                      par.prior=TRUE, prior.plots=FALSE)
+matrix_batchadjusted = removeBatchEffect(matrix_batcheffect, batch=as.factor(sa$batch),
+                                         design=mod)
+
+plot_one_gene(matrix_batchadjusted[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch effect adjusted values"), estimatemethod="CI")
+```
+
+```{r, dev="png"}
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch affected values, batch included in ANOVA"),estimatemethod="lsmeans")
+
+```
+
+
+```{r}
+#batch2FC = mean(matrix_true[index,sa$group==1 & sa$batch==2]) - 
+#          mean(matrix_true[index,sa$group==2 & sa$batch==2])
+
+
+figfilename = file.path( getwd(), "plots", paste("boxplots_v3_anovaadjusted", sep=""))
+#figfile = paste( figfilename, ".png", sep=""); png(file = figfile, width=1600, height=800)
+figfile = paste( figfilename, ".pdf", sep=""); 
+pdf(file =figfile, width=6, height=6)
+op=par(mfrow=c(4, 1),   xaxt="n", mar=c(1,3,2,1)+0.1)
+ylim=c(min(matrix_batcheffect[index,])-1, max(matrix_batcheffect[index,])+1)
+plot_one_gene(matrix_true[index,], group=sa$group, main=paste("(e) True values"),
+              estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("(f) Batch affected values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batchadjusted[index,], group=sa$group, batch=sa$batch,
+              main=paste("(g) Batch effect adjusted values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch, ylim=ylim,
+              main=paste("(h) Batch affected values, batch included in ANOVA"),estimatemethod="lsmeans")
+
+dev.off()
+
+
+```
+
+
+
+### False Positives due to batch and mean adjustment.
+
+```{r , dev="png"}
+
+#set.seed(100)
+ngenes = 1000
+index=3
+sa = createsampleannotation(  list(c(8,3,0), c(0,7,8)), as.factors=TRUE)
+matrix_true = matrix(rnorm(ngenes * nrow(sa), mean=5, sd=0.5), nrow=ngenes, ncol=nrow(sa))
+
+# add a group effect for group 3
+matrix_true[,sa$group==3] = matrix_true[,sa$group==3]+2
+plot_one_gene(matrix_true[index,], group=sa$group, main=paste("True values"),
+              estimatemethod="CI")
+
+```
+
+Add batch effect.
+```{r , dev="png"}
+matrix_batcheffect = matrix_true
+matrix_batcheffect[,sa$batch==1] = matrix_batcheffect[,sa$batch==1]-1
+matrix_batcheffect[,sa$batch==2] = matrix_batcheffect[,sa$batch==2]+1
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch affected values"), estimatemethod="CI")
+```
+
+Batch adjust with mean center.
+
+```{r , dev="png"}
+matrix_batchadjusted = matrix_batcheffect
+genemeans = rowMeans(matrix_batcheffect)
+matrix_batchadjusted[,sa$batch ==1] =  genemeans +
+  matrix_batchadjusted[,sa$batch ==1] - rowMeans( matrix_batchadjusted[,sa$batch ==1])
+matrix_batchadjusted[,sa$batch ==2] =  genemeans + 
+  matrix_batchadjusted[,sa$batch ==2] - rowMeans( matrix_batchadjusted[,sa$batch ==2])
+
+#index=index+1
+plot_one_gene(matrix_batchadjusted[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch effect adjusted values"), estimatemethod="CI")
+```
+
+
+
+Include batch as factor in ANOVA.
+```{r , dev="png"}
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("Batch affected values, batch included in ANOVA"),estimatemethod="lsmeans")
+
+```
+
+
+
+
+
+```{r}
+
+
+figfilename = file.path( getwd(), "plots", paste("boxplots_v3_meanadjusted" , sep=""))
+figfile = paste( figfilename, ".pdf", sep=""); 
+pdf(file =figfile, width=6, height=6)
+ylim=c(min(matrix_batcheffect[index,])-1, max(matrix_batcheffect[index,])+1)
+op=par(mfrow=c(4, 1),   xaxt="n", mar=c(1,3,2,1)+0.1)
+plot_one_gene(matrix_true[index,], group=sa$group, main=paste("(a) True values"),
+              estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("(b) Batch affected values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batchadjusted[index,], group=sa$group, batch=sa$batch,
+              main=paste("(c) Batch adjusted values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch, ylim=ylim,
+              main=paste("(d) Batch affected values, batch included in ANOVA"),estimatemethod="lsmeans")
+
+dev.off()
+
+
+```
+
+
+
+
+#########test
+
+
+
+### False Positives due to batch and mean adjustment.
+
+```{r , dev="png"}
+
+#set.seed(100)
+ngenes = 1000
+index=3
+sa = createsampleannotation(  list(c(20,10,0,0), c(0,10,10,0), c(0,0,10,20)), as.factors=TRUE)
+matrix_true = matrix(rnorm(ngenes * nrow(sa), mean=5, sd=2), nrow=ngenes, ncol=nrow(sa))
+
+# add a group effect for group 3
+matrix_true[,sa$group==1] = matrix_true[,sa$group==1]+0
+matrix_true[,sa$group==2] = matrix_true[,sa$group==2]+4
+matrix_true[,sa$group==3] = matrix_true[,sa$group==3]-4
+matrix_true[,sa$group==4] = matrix_true[,sa$group==4]+0
+
+
+matrix_batcheffect = matrix_true
+matrix_batcheffect[,sa$batch==1] = matrix_batcheffect[,sa$batch==1]-1
+matrix_batcheffect[,sa$batch==2] = matrix_batcheffect[,sa$batch==2]+1
+
+
+#Batch adjust with mean center.
+
+matrix_batchadjusted = matrix_batcheffect
+genemeans = rowMeans(matrix_batcheffect)
+matrix_batchadjusted[,sa$batch ==1] =  genemeans +
+  matrix_batchadjusted[,sa$batch ==1] - rowMeans( matrix_batchadjusted[,sa$batch ==1])
+matrix_batchadjusted[,sa$batch ==2] =  genemeans + 
+  matrix_batchadjusted[,sa$batch ==2] - rowMeans( matrix_batchadjusted[,sa$batch ==2])
+
+
+mod = model.matrix(~as.factor(sa$group))
+matrix_batchadjusted2 = removeBatchEffect(matrix_batcheffect, batch=as.factor(sa$batch),
+                                         design=mod)
+
+
+figfilename = file.path( getwd(), "plots", paste("boxplots_v3_meanadjusted" , sep=""))
+figfile = paste( figfilename, ".pdf", sep=""); 
+#pdf(file =figfile, width=6, height=6)
+ylim=c(min(matrix_batcheffect[index,])-1, max(matrix_batcheffect[index,])+1)
+op=par(mfrow=c(5, 1),   xaxt="n", mar=c(1,3,2,1)+0.1)
+plot_one_gene(matrix_true[index,], group=sa$group, main=paste("(a) True values"),
+              estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch,
+              main=paste("(b) Batch affected values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batchadjusted[index,], group=sa$group, batch=sa$batch,
+              main=paste("(c) Mean adjusted values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batchadjusted2[index,], group=sa$group, batch=sa$batch,
+              main=paste("(d) Anova adjusted values"), estimatemethod="CI", ylim=ylim)
+plot_one_gene(matrix_batcheffect[index,], group=sa$group, batch=sa$batch, ylim=ylim,
+              main=paste("(e) Batch affected values, batch included in ANOVA"),estimatemethod="lsmeans")
+
+#dev.off()
+
+
+```
+
+
+
+
+
+
+
+
+```{r}
+# debug
+# rart?
+#plot(matrix_true[,10]-matrix_true[,11], matrix_batchadjusted[,10]-matrix_batchadjusted[,11])
+
+#plot(matrix_true[,10]-matrix_true[,11], rowMeans(matrix_batchadjusted[,1:10])-rowMeans(matrix_batchadjusted[,11:20]))
+
+```
+
+
