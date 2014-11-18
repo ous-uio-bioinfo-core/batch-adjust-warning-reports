@@ -10,31 +10,28 @@ Partial reproduction and alternative analysis of "Comparing the Biological Impac
 This report aims to show that the use of the statistical tool ComBat [Johnson et al.](http://biostatistics.oxfordjournals.org/content/8/1/118.abstract) would lead to false results for the analysis described in [Towfic et al.'s ](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0083757) "Comparing the Biological Impact of Glatiramer Acetate with the Biological Impact of a Generic".
 
 The generation of this report is a side product of  "Methods that remove batch effects while retaining group differences may lead
-to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consists of some of the analyses performed working with the manuscript that were too detailed to be included. Nevertheless, it should be useful for those especially interested. This report is not peer-reviewed.
+to exaggerated confidence in downstream analyses", V. Nygaard, E. A. Rødland, E. Hovig, manuscript in preparation. It consists of some of the analyses performed working with the manuscript that were too detailed to be included. Nevertheless, it should be useful for those especially interested. This report is not peer-reviewed, and it might be updated.
 
 The format of this report is html with text, r-code and plots intermingled and made from an rmarkdown file in R-studio with knitr. It is intended to be reproducible if run in conjunction with a few accompanying files from the github repository (https://github.com/ous-uio-bioinfo-core/batch-adjust-warning-reports.git).
 
 This document has five main parts
 
-- Getting and formatting the data
 - Deviation from the analysis that were actually performed by Towfic et al
+- Getting and formatting the data
 - Reproducing some of the results to show that we are working on the same data and analysis workflow
 - Remove the use of ComBat and perform a similar analysis with an alternative established tool
 - Estimate the error introduced when ComBat is used, and evaluate the consequences for the conclusion of the study
 - Perform a few more sanity checks to substantiate that the difference in results for the two analyses above is mainly introduced by ComBat
 
-
-```{r runparameters, results='hide', echo=TRUE}
+<br/>
+<br/>
+loading libraries and helper script files needed.
+```{r, results='hide', message=FALSE}
 starttime = Sys.time()
-debug = FALSE
+debug = TRUE
 downloaddata=TRUE
 set.seed(100)
-```
 
-<br/>
-<br/>
-
-```{r, results='hide', message=FALSE}
 includelibs = c("sva", "limma", "xtable", "statmod", "GEOquery")
 tmp=lapply(includelibs, require, character.only=T)
 if(any(!unlist(tmp)))
@@ -48,14 +45,32 @@ if(any(!unlist(tmp)))
 source("../../commonscripts/helperfunctions.r")
 rm(tmp)
 ```
-
-The above libraries and helper script files are needed in order to reproduce this report.
 <BR/>
 <BR/>
 
+
+### Deviation from the analysis that were actually performed by Towfic et al.
+
+In our submitted manuscript, we used the GEO deposit GSE40566 as a starting point.
+
+> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
+
+Throug comunication with the authors we later understood, that this was not the version of the data used as a starting point in Towfic et al. The data actually used in Towfic et al. is found in GEO deposit with accession GSE61901. These are based on the same hybridizastions, but at low-level processed in a different way. We were also given the scripts used to analyse the data in Towfic et al (personal communication, Ben Zeskind). There were some important deviations between our reproduction and Towfic et al.´s analysis, mainly that the data matrix from GSE61901 has two columns per sample, each originating from the same hybridization, but from two separate strips consisting of the same probes.  A sample is flowing freely between the two strips, thus they can be considered as beeing sub-arrays. In the standard preprocessing done with Illumina's Genome Studio, only one probe value is calculated per hybridization, using information from both strips. And this is how the data is formatted in the GEO deposit (GSE40566) originally linked to from Towfic et al. As long as the data from the two strips are handled as technical replicates, the result from analyses using the two different GEO accession, would be quite similar. However, Towfic et al. did not combine the replicates or use a model that handled technical replicates, instead treating these as independent samples. The consequence of inflating the sample size like this is exaggerated confidence, quite similar to the adverse effects of ComBat. 
+<BR/>
+<BR/>
+We chose Towfic et al. as an illustration of adverse effects of ComBat based on the "Methods" description, which did not describe the presense of technical replicates. To include the inappropriate techical replicate handling in our re-analysis would result in hundreds of false positives, even without the use of ComBat. This might confuse the readers, and the example would be less illustrative of the adverse effects of ComBat. Thus, we decided to leave it out in our article, and analyse the data in a more standard way using the GSE40566 as a starting point. However, in this report, we use the GSE61901 deposit in order to replicate exactly some of the tables in Towfic et al.
+<br/>
+<br/>
+**Relationship to ["Gene expression analysis reveals functional pathways of glatiramer acetate activation."](http://informahealthcare.com/doi/abs/10.1517/14728222.2013.778829), Bakshi et al.**
+The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In that article, they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al., however based on their description, it seems that they used another batch adjustment tool, the Partek batch remover PARTEK SITERIKNT. In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a 2-way Anova and removed from the data, much in the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is ment for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but have not aquired the permission to quote from it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
+<br/>
+<br/>
+For this report we will use GSE61901.
+<br/>
+<br/>
 ### Getting the data
 
-The data used by Towfic et al. deposited in GEO with accession GSE61901. We need the sample annotation and non-normalized data.
+The data used by Towfic et al. deposited in GEO with accession GSE61901. We need the sample annotation and non-normalized data. Be awere, that we are not using the GSE40566 here as is refered to in Towfic et al. and we used to genereate the figure 3a in our manuscript.
 
 ```{r, message=FALSE}
 
@@ -138,6 +153,20 @@ rownames(datamatrix_raw) = rawdataprobeids
 rm(orgrawtable)
 ```
 
+This is the top of the data matrix, illustrating the technical replication of samples.
+
+```{r results="asis"}
+
+print.xtable(xtable ( datamatrix_raw[1:5,1:6]), 
+			comment = TRUE,
+      type = "html",
+      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
+      include.rownames = TRUE)
+
+```
+
+The column headers have three parts, the BeadChip ID (“4634633002”), the hybridization id (“A”, 6 on each BeadChip) and the strip id (“1”, two for each hybridization).
+
 <br/>
 <br/>
 
@@ -195,34 +224,6 @@ print.xtable(xtable ( table(sampleannotation[sampleannotation$covariate %in% c("
 <br/>
 
 
-
-### Deviation from the analysis that were actually performed by Towfic et al
-
-For the reproduction, we initially used the raw data from the GEO deposit referred to in Towfic et al:
-
-> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
-
-We were later informed, that this was not the version of the data used as a starting point in Towfic et al. The data actually used in Towfic et al. is found in GEO deposit with accession GSE61901. These are based on the same hybridizastions, but low-level processed in a different way. We were also given the scripts used to analyse the data in Towfic et al (personal communication, Ben Zeskind). There were some important deviations between our reproduction and Towfic et al.´s analysis, mainly that the data matrix from GSE61901 has two columns per sample, each originating from the same hybridization, but from two separate strips consisting of the same probes. This is the top of that matrix:
-
-```{r results="asis"}
-
-print.xtable(xtable ( datamatrix_raw[1:5,1:6]), 
-			comment = TRUE,
-      type = "html",
-      html.table.attributes=c("CELLPADDING=3, BORDER=1"),
-      include.rownames = TRUE)
-
-```
-
-<BR/>
-The column headers have three parts, the BeadChip ID ("4634633002"), the hybridization id ("A", 6 on each BeadChip) and the strip id ("1", two for each hybridization). A sample is flowing freely between the two strips, thus they can be considered as beeing sub-arrays. In the standard preprocessing done with Illumina's Genome Studio, only one probe value is calculated per hybridization, using information from both strips. And this is how the data is formatted in the GEO deposit (GSE40566) originally linked to from Towfic et al. As long as the data from the two strips are handled as technical replicates, the result from analyses using the two different GEO accession, would be quite similar. However, Towfic et al. did not combine the replicates or use a model that handled technical replicates, instead treating these as independent samples. The consequence of inflating the sample size like this is exaggerated confidence, quite similar to the adverse effects of ComBat. 
-<BR/>
-<BR/>
-We chose Towfic et al. as an illustration of adverse effects of ComBat based on the "Methods" description, which did not mention replicate observations. To include the inappropriate replicate handling in our re-analysis would result in hundreds of false positives, even without the use of ComBat. This might confuse the readers, and the example would be less illustrative of the adverse effects of ComBat. Thus, we decided to leave it out in our article, and analyse the data in a more standard way using the GSE40566 as a starting point. However, in this report, we use the GSE61901 deposit in order to replicate exactly some of the tables in Towfic et al.
-<br/>
-<br/>
-**Relationship to ["Gene expression analysis reveals functional pathways of glatiramer acetate activation."](http://informahealthcare.com/doi/abs/10.1517/14728222.2013.778829)**
-The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In this article they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al, however based on their description, it seems that the use another batch adjustment tool, the Partek batch remover PARTEKSITERIKNT, might have acted in the same manner as ComBat. In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a 2-way Anova and removed from the data, much the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is ment for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but were not allowd to reprint it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
 
 ### Reproduce some of the original results
 
