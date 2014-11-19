@@ -25,10 +25,33 @@ This document has five main parts
 
 <br/>
 <br/>
+
+### Deviation from the analysis that were actually performed by Towfic et al.
+
+In our submitted manuscript, we used the GEO deposit GSE40566 as a starting point.
+
+> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
+
+Through communication with the authors we later understood, that this was not the version of the data used as a starting point in Towfic et al. The data actually used in Towfic et al. is found in GEO deposit with accession GSE61901. These are based on the same hybridizations, but at low-level processed in a different way. We were also given the scripts used to analyse the data in Towfic et al (personal communication, Ben Zeskind). There were some important deviations between our reproduction and Towfic et al.´s analysis, mainly that the data matrix from GSE61901 has two columns per sample, each originating from the same hybridization, but from two separate strips consisting of the same probes.  A sample is flowing freely between the two strips, thus they can be considered as being sub-arrays. In the standard preprocessing done with Illumina's Genome Studio, only one probe value is calculated per hybridization, using information from both strips. And this is how the data is formatted in the GEO deposit (GSE40566) originally linked to from Towfic et al. As long as the data from the two strips are handled as technical replicates, the result from analyses using the two different GEO accession, would be quite similar. However, Towfic et al. did not combine the replicates or use a model that handled technical replicates, instead treating these as independent samples. The consequence of inflating the sample size like this is exaggerated confidence, quite similar to the adverse effects of ComBat. 
+<BR/>
+<BR/>
+We chose Towfic et al. as an illustration of adverse effects of ComBat based on the "Methods" description, which did not describe the presence of technical replicates. To include the inappropriate technical replicate handling in our re-analysis would result in hundreds of false positives, even without the use of ComBat. This might confuse the readers, and the example would be less illustrative of the adverse effects of ComBat. Thus, we decided to leave it out in our article, and analyse the data in a more standard way using the GSE40566 as a starting point. However, in this report, we use the GSE61901 deposit in order to replicate exactly some of the tables in Towfic et al.
+<br/>
+<br/>
+**Relationship to ["Gene expression analysis reveals functional pathways of glatiramer acetate activation."](http://informahealthcare.com/doi/abs/10.1517/14728222.2013.778829), Bakshi et al.**
+The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In that article, they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al., however based on their description, it seems that they used another batch adjustment tool, Partek Batch Remover™ tool, Partek Genomics Suite (Partek, Inc., St. Louis, Missouri, MO, USA) . In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a 2-way Anova and removed from the data, much in the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is meant for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but have not acquired the permission to quote from it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
+<br/>
+<br/>
+For this report we will use GSE61901.
+<br/>
+<br/>
+
+### Getting the data
+
 loading libraries and helper script files needed.
 ```{r, results='hide', message=FALSE}
 starttime = Sys.time()
-debug = TRUE
+debug = FALSE
 downloaddata=TRUE
 set.seed(100)
 
@@ -48,29 +71,7 @@ rm(tmp)
 <BR/>
 <BR/>
 
-
-### Deviation from the analysis that were actually performed by Towfic et al.
-
-In our submitted manuscript, we used the GEO deposit GSE40566 as a starting point.
-
-> The microarray data have been deposited in the Gene Expression Omnibus, under accession number [GSE40566](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40566). <cite> Towfic et al.
-
-Throug comunication with the authors we later understood, that this was not the version of the data used as a starting point in Towfic et al. The data actually used in Towfic et al. is found in GEO deposit with accession GSE61901. These are based on the same hybridizastions, but at low-level processed in a different way. We were also given the scripts used to analyse the data in Towfic et al (personal communication, Ben Zeskind). There were some important deviations between our reproduction and Towfic et al.´s analysis, mainly that the data matrix from GSE61901 has two columns per sample, each originating from the same hybridization, but from two separate strips consisting of the same probes.  A sample is flowing freely between the two strips, thus they can be considered as beeing sub-arrays. In the standard preprocessing done with Illumina's Genome Studio, only one probe value is calculated per hybridization, using information from both strips. And this is how the data is formatted in the GEO deposit (GSE40566) originally linked to from Towfic et al. As long as the data from the two strips are handled as technical replicates, the result from analyses using the two different GEO accession, would be quite similar. However, Towfic et al. did not combine the replicates or use a model that handled technical replicates, instead treating these as independent samples. The consequence of inflating the sample size like this is exaggerated confidence, quite similar to the adverse effects of ComBat. 
-<BR/>
-<BR/>
-We chose Towfic et al. as an illustration of adverse effects of ComBat based on the "Methods" description, which did not describe the presense of technical replicates. To include the inappropriate techical replicate handling in our re-analysis would result in hundreds of false positives, even without the use of ComBat. This might confuse the readers, and the example would be less illustrative of the adverse effects of ComBat. Thus, we decided to leave it out in our article, and analyse the data in a more standard way using the GSE40566 as a starting point. However, in this report, we use the GSE61901 deposit in order to replicate exactly some of the tables in Towfic et al.
-<br/>
-<br/>
-**Relationship to ["Gene expression analysis reveals functional pathways of glatiramer acetate activation."](http://informahealthcare.com/doi/abs/10.1517/14728222.2013.778829), Bakshi et al.**
-The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In that article, they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al., however based on their description, it seems that they used another batch adjustment tool, the Partek batch remover PARTEK SITERIKNT. In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a 2-way Anova and removed from the data, much in the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is ment for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but have not aquired the permission to quote from it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
-<br/>
-<br/>
-For this report we will use GSE61901.
-<br/>
-<br/>
-### Getting the data
-
-The data used by Towfic et al. deposited in GEO with accession GSE61901. We need the sample annotation and non-normalized data. Be awere, that we are not using the GSE40566 here as is refered to in Towfic et al. and we used to genereate the figure 3a in our manuscript.
+The data used by Towfic et al. deposited in GEO with accession GSE61901. We need the sample annotation and non-normalized data. Be aware, that we are not using the GSE40566 here as is referred to in Towfic et al. and we used to generate the figure 3a in our manuscript.
 
 ```{r, message=FALSE}
 
@@ -85,7 +86,7 @@ if(downloaddata)
 }
 # will only use sample annotation from this eset. The data will be taken from the non-normalized matrix file.
 
-# getting the sample annotation, some renaming
+# getting the sample annotation, some renaming for conveniance
 duplicatesampleannotation = pData(eset)[, c("characteristics_ch1", "characteristics_ch1.3", "characteristics_ch1.2")]
 names(duplicatesampleannotation) = c("batch", "covariate", "array_strip_address")
 duplicatesampleannotation[,1]=gsub("batch: ", "", duplicatesampleannotation[,1] )
@@ -93,7 +94,6 @@ duplicatesampleannotation[,2]=gsub("batchcovar: ", "", duplicatesampleannotation
 duplicatesampleannotation[,3]=gsub("array_address: ", "", duplicatesampleannotation[,3] )
 duplicatesampleannotation[,"array_hyb_address"]=gsub("_[12]", "", duplicatesampleannotation[,3] )
 
-# some renaming for conveniance
 duplicatesampleannotation$covariate = make.names(duplicatesampleannotation$covariate)
 duplicatesampleannotation$covariate[duplicatesampleannotation$covariate=="GA.DP"] = "DP"
 duplicatesampleannotation$covariate[duplicatesampleannotation$covariate=="GA.Q"] = "N"
@@ -120,12 +120,6 @@ if(downloaddata)
 		orgrawtable = read.table("not_in_github/GSE61901_non-normalized.txt", sep="\t", header=TRUE, 
 											stringsAsFactors=FALSE, skip=5, strip.white=TRUE, fill=TRUE)
 }
-# round(sort( sapply(mget(ls()),object.size) )/2^20, 0)
-
-
-
-
-
 
 #to matrix, taking out the empty detection p-val columns.
 datamatrix_raw = orgrawtable
@@ -138,18 +132,7 @@ mode(datamatrix_raw) = "numeric"
 #ordercheck
 #table(colnames(datamatrix_raw)==paste( duplicatesampleannotation[, "array_strip_address"], sep="")) 
 colnames(datamatrix_raw)=duplicatesampleannotation[, "array_strip_address"]
-
-# probeid check. Different order from the probeannotation, but all there.
-# probeannotation is not used further.
-#gplannotation =  getGEO(annotation(eset))
-#probeannotation = data.frame(Table(dataTable(gplannotation)), stringsAsFactors=FALSE)
-#probeannotation[] <- lapply(probeannotation, as.character)
-#table(rawdataprobeids==probeannotation$ID)
-#table(rawdataprobeids %in% probeannotation$ID)
-#table(probeannotation$ID %in% rawdataprobeids)
-
 rownames(datamatrix_raw) = rawdataprobeids
-
 rm(orgrawtable)
 ```
 
@@ -305,8 +288,9 @@ rm(group, design, fit,cont.matrix, fit2, limma_ret_dup, limma_p_dup)
 
 The reproduced p-values for the Table S5 probes are exactly as the listed ones. This is not surprising, since the above code is only cosmetically different from the scripts used by Towfic et al. (personal communication, Ben Zeskind)
 
-This concludes the exact reproduction. However, due to reasons explained above, we chose to handle the replicate columns as technical replicates in our reproduction and alternative analysis in our article. The rest of this report will show the difference in results from the analyses with or without ComBat, but otherwise conducted in a fairly standard way (in our opinion).
+This concludes the exact reproduction. The rest of this report will show the difference in results from the analyses with or without ComBat, but otherwise conducted in a fairly standard way(in our opinion), i.e averaging the technical replicates.
 
+**Limma test on average of techical replicates**
 
 Combining the replicates after quantilenormalization and running ComBat.
 ```{r}
@@ -345,7 +329,7 @@ limma_p_combat = limma_ret_combat$p.value
 ### Analysis without ComBat, and consequences for the results
 
 
-Table S5, on the other hand, consists of results from significance tests that are strongly influenced by ComBat's data transformation. An alternative way of handling the batch effect compared to ComBat's is to include it in the statistical test. This can be done in limma in two ways. First what is described as "Blocking" in the limma user guide.
+The p-values in Table S5 could be strongly influenced by by ComBat's data transformation. An alternative, and preferable way in our opinion, of handling the batch effect is to include batch information in the statistical test. This can be done in limma in two ways. First what is described as "Blocking" in the limma user guide.
 
 ```{r dev='png', fig.width=8, fig.height=8, fig.show='hold', tidy=FALSE}
 group = factor(sampleannotation$covariate)
@@ -365,7 +349,7 @@ table(p.adjust(limma_p_combat , method="fdr")<0.05, p.adjust(limma_p_woc , metho
 The number of significant probes using the given FDR threshold of 0.05 when batch effect is handled by LIMMA is 
 **`r sum(p.adjust(limma_p_woc , method="fdr")<0.05)`**. When ComBat is applied, **`r sum(p.adjust(limma_p_combat , method="fdr")<0.05)`** are found.  The p-value distribution is still skewed, but not as much.
 
-Alternatively, limma´s <i>duplicateCorrelation</i> function can be used to treat batch as a random effect. This could arguably be a more powerful approach, and a short investigation is warranted.
+Alternatively, limma´s <i>duplicateCorrelation</i> function can be used to treat batch as a random effect. This could arguably be a more powerful approach, and a short investigation is warranted. Disclaimer, I am not 100% sure duplicateCorrelation is used correct below and as intended!
 
 ```{r dev='png', fig.width=8, fig.height=8, fig.show='hold', tidy=FALSE}
 
@@ -379,7 +363,6 @@ cont.matrix = makeContrasts ( contrasts="groupDP-groupN", levels=design)
 fit2 = contrasts.fit(fit, cont.matrix)
 #limma_ret_woc = eBayes(fit2)
 limma_p_mixed = eBayes(fit2)$p.value
-
 thiscolors = c("red", "blue", "black")
 hist(limma_p_combat, breaks=100, freq=T, border=thiscolors[1], main="Alternative P-value distributions for DP vs. N", xlab="P-values")
 hist(limma_p_woc, breaks=100, add=T, freq=T, border=thiscolors[2])
@@ -527,7 +510,7 @@ for(i in 1:length(permuted_pvalcounts))
 legend("topright", legend=c("Reproduced p-values real labels", "Permuted DP and N labels"), text.col=c("red", "blue"))
 ```
 
-Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not associated with the N and DP labels, but rather an adverse effect of the ComBat adjustments.
+Shuffling the N and DP labels within batches produces about the same p-value distribution as for the real data. This is an indication that the significant genes found in the real data are not altered by the treatment, but rather an adverse effect of the ComBat adjustments.
 
 
 <br/>
@@ -535,13 +518,19 @@ Shuffling the N and DP labels within batches produces about the same p-value dis
 
 **Control probes found as differentially expressed**
 
-[Table S5](http://www.plosone.org/article/fetchSingleRepresentation.action?uri=info:doi/10.1371/journal.pone.0083757.s013) from Towfic et al. lists the probes with the most average change in expressed between DP(GA) and N(generic) alongside the results from several test for differential expression. Two of the probes listed and found to be differentially expressed are control probes, (ILMN_1343049 and ILMN_1343048). These are not targeting mouse RNA, but instead target added alien RNA of a known concentration, and are intended to be used in quality control of the hybridization. There are 12 control probes of this type on the array. When these two come up in the end of an analysis as differentially expressed genes, something have probably gone wrong a long the way. The use of ComBat is one possible explanation since it is able to find differentially expressed genes also for random numbers.
+[Table S5](http://www.plosone.org/article/fetchSingleRepresentation.action?uri=info:doi/10.1371/journal.pone.0083757.s013) from Towfic et al. lists the probes with the most average change in expressed between DP(GA) and N(generic) alongside the results from several test for differential expression. Two of the probes listed and found to be differentially expressed are control probes, (ILMN_1343049 and ILMN_1343048). These are not targeting mouse RNA, but instead target added alien RNA of a known concentration, and are intended to be used in quality control of the hybridization. There are 12 control probes of this type on the array. These two probes may have gotten such low p-values by chance, but in our opinion the more likely explanation is that something has gone wrong in the analysis steps. The use of ComBat is one possible explanation since it is able to find differentially expressed genes also for random numbers.
 
 
 <br/>
 <br/>
 
 ### References
+
+Towfic F, Funt JM, Fowler KD, Bakshi S, Blaugrund E, Artyomov MN, Hayden MR,
+Ladkani D, Schwartz R, Zeskind B. Comparing the biological impact of glatiramer
+acetate with the biological impact of a generic. PLoS One. 2014 Jan
+8;9(1):e83757. doi: 10.1371/journal.pone.0083757. eCollection 2014. PubMed PMID: 
+24421904; PubMed Central PMCID: PMC3885444.
 
 
 Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
