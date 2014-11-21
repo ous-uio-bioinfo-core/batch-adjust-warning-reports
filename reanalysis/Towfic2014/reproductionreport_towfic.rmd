@@ -39,7 +39,7 @@ We chose Towfic et al. as an illustration of adverse effects of ComBat based on 
 <br/>
 <br/>
 **Relationship to ["Gene expression analysis reveals functional pathways of glatiramer acetate activation."](http://informahealthcare.com/doi/abs/10.1517/14728222.2013.778829), Bakshi et al.**
-The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In that article, they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al., however based on their description, it seems that they used another batch adjustment tool, Partek Batch Remover™ tool, Partek Genomics Suite (Partek, Inc., St. Louis, Missouri, MO, USA) . In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a 2-way Anova and removed from the data, much in the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is meant for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but have not acquired the permission to quote from it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
+The GEO deposit that Towfic et al. points to, but did not use (GSE40566), was used by another article by Bakshi et al. In that article, they do not count each sample twice and they do not use ComBat, still they find genes that differ between Copaxone and the generic. We have not made any attempt to reproduce the results in Bakshi et al., however based on their description, it seems that they used another batch adjustment tool, Partek Batch Remover™ tool, Partek Genomics Suite (Partek, Inc., St. Louis, Missouri, MO, USA) . In the relevant section of the manual for Partek Genomics Suite v6.6, it is described that the batch effect is estimated with a two-way Anova and removed from the data, much in the same way as ComBat does (excluding the empirical Bayes step). The manual further emphasizes that the resulting data set is meant for visualization purposes and if used in a statistical test, the batch factor must be included. We obtained the manual from Partek user support, but have not acquired the permission to quote from it. From reading the methods section of Bakshi et al. it seems that the data set with batch effects removed was used in the statistical tests without supplying the batch as a factor, which may have lead to false results in a similar way as for Towfic et al.
 <br/>
 <br/>
 For this report we will use GSE61901.
@@ -375,6 +375,17 @@ For this data set, the two LIMMA methods will give quite similar results, at lea
 <br/>
 <br/>
 
+**Interpreting the results**
+
+For the analysis based on the ComBat adjusted matrix the conclusion would be that a lot of genes differ between the samples treated with glatiramer or generic. However, for the LIMMA approach, where batch is included in the model, only a handful of genes are found and the conclusion could be that perhaps a few genes are affected.
+
+<br/>
+
+In Towfic et al. a lot of additional tests are performed on the ComBat adjusted matrix, which we have not tried to replicate. It is hard to say if the results for those would differ, if the batch effects had been handled more appropriate. 
+
+<br/>
+<br/>
+
 ### Additional sanity checks
 
 To substantiate that the result from the use of ComBat is less trustworthy than the alternative analysis, we provide a couple of additional sanity checks.
@@ -532,6 +543,10 @@ acetate with the biological impact of a generic. PLoS One. 2014 Jan
 8;9(1):e83757. doi: 10.1371/journal.pone.0083757. eCollection 2014. PubMed PMID: 
 24421904; PubMed Central PMCID: PMC3885444.
 
+Bakshi S, Chalifa-Caspi V, Plaschkes I, Perevozkin I, Gurevich M, Schwartz R. 
+Gene expression analysis reveals functional pathways of glatiramer acetate
+activation. Expert Opin Ther Targets. 2013 Apr;17(4):351-62. doi:
+10.1517/14728222.2013.778829. Epub 2013 Mar 8. PubMed PMID: 23469939.
 
 Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
 
