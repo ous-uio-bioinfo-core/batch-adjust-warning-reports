@@ -16,6 +16,8 @@ One sanity check will be performed
 
 Most code are taken directly from the vignette source 'vignettes/sva/inst/doc/sva.Rnw'. For more explanation, please read the [sva tutorial](http://www.bioconductor.org/packages/2.13/bioc/vignettes/sva/inst/doc/sva.pdf) in parallel while remembering that the real data is replaced with random numbers.
 
+This report is based on version 3.8.0 of sva. Version 3.12.0 does no longer include covariates when illustrating ComBat use..
+
 ```{r}
 
 options(width=65)

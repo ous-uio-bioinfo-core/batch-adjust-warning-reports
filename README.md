@@ -28,7 +28,7 @@ one 9(1), e83757.
 
 ### reanalysis/Leek2012/
 
-Full random number re-run of the tutorial from the sva package, Leek JT,
+Full random number re-run of the tutorial from the sva package (v3.8.0), Leek JT,
 Johnson WE, Parker HS, Jaffe AE, Storey JD.(2012) The sva package for removing batch
 effects and other unwanted variation in high-throughput experiments. Bioinformatics. 2012
 Mar 15;28(6):882-3.
