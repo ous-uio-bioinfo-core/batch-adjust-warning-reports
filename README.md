@@ -8,7 +8,7 @@ not part of, the article "Methods that remove batch effects while retaining grou
 differences may lead to exaggerated confidence in downstream analyses", V. Nygaard, E. A.
 Rødland, E. Hovig, manuscript in preparation.
 
-The target audience is the especially interested ones, and the reports are not peer-reviewed.
+The target audience is the especially interested ones. The reports are not peer-reviewed and might be changed or updated after the publication data.
 
 The format of the report is html, but the underlying r-code and text is available and
 rerunnable. Run knit2html or the Rstudio knitr integration on the individual .rmd files to re-produce the plots and html.
