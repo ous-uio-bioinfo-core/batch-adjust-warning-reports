@@ -1,3 +1,12 @@
+### Batch adjust and analyse random data
+#
+# Compare F statistics obtained from ANOVA against:
+# - reference: distribution assumed by common ANOVA
+# - design corrected: F scaled to correct for effective sample size
+# - design corrected (shrinked):F scaled assuming shrinked batch adjustment
+# - empirically corrected: F scaled based on empirical factor (by variance)
+# - theoretical value: approximate F distribution after batch adjustment
+
 
 # Set work directory (needs to by modified!)
 setwd('D:/Store/Git/batch-adjust-warning-reports/theory');
@@ -5,6 +14,7 @@ setwd('D:/Store/Git/batch-adjust-warning-reports/theory');
 # Include libraries and functinos
 library(limma);
 library(MASS);
+library(sva); # Not in use unless ComBat is used
 source('../commonscripts/theoryfunctions.r');
 
 # Settings
@@ -23,10 +33,13 @@ mod = model.matrix(~1+group,data=dt$pheno); # Model (group effect)
 mod0 = model.matrix(~1,data=dt$pheno); # Null-model (intercept)
 mod.batch = model.matrix(~batch,data=dt$pheno); # Batch effect model
 dt$edata.anova = removeBatchEffect(dt$edata, batch=batch, design=mod);
+#dt$ComBat(mod); # Run ComBat and store in dt.edata.combat
 
 ### ANOVA
+dt$edata=dt$edata.anova;
+#dt$edata=dt$edata.combat;
 mod1 = mod[,2:ncol(mod)];
-test = Ftest(dt$edata.anova,mod,mod0);
+test = Ftest(dt$edata,mod,mod0);
 B.A=t(mod1)%*%perpendicular(mod0)%*%mod1;
 B.AC=t(mod1)%*%perpendicular(mod.batch)%*%mod1;
 M=B.A%*%solve(B.AC);

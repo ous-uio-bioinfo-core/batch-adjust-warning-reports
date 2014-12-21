@@ -110,7 +110,7 @@ RandomData=function(N,N.genes,sd.error=1,sd.batch=1,desc=NULL) {
 
   obj$ComBat=function(mod) {
     obj$edata.combat=ComBat(dat=obj$edata,batch=obj$pheno$Batch,mod=mod,numCovs=NULL,par.prior=TRUE,prior.plots=FALSE);
-    return(obj$edata.combat);
+    invisible(obj$edata.combat);
   }
 
   return(obj);
