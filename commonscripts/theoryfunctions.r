@@ -1,31 +1,17 @@
 ###
-### Functions used in testcase.r
+### Functions used to generate and analyse random data
 ###
 
 
 # Write to console
-concat=function(...,sep='') paste(format(list(...)),sep=sep,collapse=sep)
-print.log=function(...,sep='') cat(...,'\n',sep=sep);
+#concat=function(...,sep='') paste(format(list(...)),sep=sep,collapse=sep)
+#print.log=function(...,sep='') cat(...,'\n',sep=sep);
 print.vars=function(x=NULL,...) {
   if (!is.null(x)) {
     if (is.character(x)) cat(x,'\n')
     else cat(as.character(substitute(x)),'=',c(x),'\n')
     print.vars(...)
   }
-}
-
-
-# Save plot to file
-save.plot.enable=FALSE
-save.plot.suffix=NULL
-save.plot=function(...,folder='Plots',suffix=save.plot.suffix,sep='_') {
-  if (!save.plot.enable) return(invisible())
-  filename=paste(paste(c(...,suffix),sep=sep,collapse=sep),'.png',sep='')
-  if (!is.null(folder)) filename=file.path(folder,filename)
-  print.log('Save plot to ',filename)
-  dev.copy(png,filename)
-  dev.off()
-  return(invisible())
 }
 
 
@@ -42,6 +28,19 @@ Line.add=function(x0,slope,col='gray',lwd=1,label=NULL) {
 }
 
 
+# Matrix trace
+tr=function(m) sum(diag(m));
+alttr=function(m) tr(m)-mean(m)*dim(m)[1];
+
+# Matrix projections
+projection=function(m) m%*%ginv(t(m)%*%m)%*%t(m);
+perpendicular=function(m) diag(nrow(m))-projection(m);
+
+# Compute effective number of samples in the sense of
+#   n_eff = n * sum_i p_i*(1-p_i)
+effective.N=function(x) sum(x)-sum(x*x)/sum(x); 
+
+
 # Random matrix and constant matrix
 rmatrix=function(rownames,colnames,rfunc=rnorm,...) {
   X=matrix(rfunc(length(rownames)*length(colnames),...),
@@ -52,6 +51,21 @@ rmatrix=function(rownames,colnames,rfunc=rnorm,...) {
 }
 cmatrix=function(rownames,colnames,value=NA) {
   return(rmatrix(rownames,colnames,rfunc=function(n) rep(value,n)));
+}
+
+
+# Set up multi*m+full batches with m groups
+# - for each group, add multi batches with n0 samples in one group and n1 in the rest
+# - add full batches with n0 samples from each group
+UnbalancedBatches=function(m,n0,n1=0,full=0,multi=1) {
+  N=rep(list(rep(n1,m)),m);
+  for (i in 1:m) N[[i]][i]=n0;
+  N=c(rep(list(rep(n0,m)),full),rep(N,multi));
+  desc=NULL
+  if (multi>0) desc=c(desc,paste0(multi,'x',m,'x',n0,'+',n1))
+  if (full>0) desc=c(desc,paste0(full,'x',n0))
+  attr(N,'desc')=desc
+  return(N);
 }
 
 
@@ -170,31 +184,4 @@ Ftest = function (dat, mod, mod0,adjust=1)
   return(obj);
 }
 
-
-# Set up multi*m+full batches with m groups
-# - for each group, add multi batches with n0 samples in one group and n1 in the rest
-# - add full batches with n0 samples from each group
-UnbalancedBatches=function(m,n0,n1=0,full=0,multi=1) {
-  N=rep(list(rep(n1,m)),m);
-  for (i in 1:m) N[[i]][i]=n0;
-  N=c(rep(list(rep(n0,m)),full),rep(N,multi));
-  desc=NULL
-  if (multi>0) desc=c(desc,paste0(multi,'x',m,'x',n0,'+',n1))
-  if (full>0) desc=c(desc,paste0(full,'x',n0))
-  attr(N,'desc')=desc
-  return(N);
-}
-
-
-# Matrix trace
-tr=function(m) sum(diag(m));
-alttr=function(m) tr(m)-mean(m)*dim(m)[1];
-
-# Matrix projections
-projection=function(m) m%*%ginv(t(m)%*%m)%*%t(m);
-perpendicular=function(m) diag(nrow(m))-projection(m);
-
-# Compute effective number of samples in the sense of
-#   n_eff = n * sum_i p_i*(1-p_i)
-effective.N=function(x) sum(x)-sum(x*x)/sum(x); 
 

@@ -1,13 +1,18 @@
 
-setwd('D:/Projects/TumorBio/ComBat/R');
+# Set work directory (needs to by modified!)
+setwd('D:/Store/Git/batch-adjust-warning-reports/theory');
+
+# Include libraries and functinos
 library(limma);
 library(MASS);
-source('testcase_functions.r');
+source('../commonscripts/theoryfunctions.r');
+
+# Settings
 options(digits=5);
 
-### Specify random data
-#N = UnbalancedBatches(5,50,50,full=0,multi=1);
+### Specify random data (N=design, dt=data)
 #N = UnbalancedBatches(5,50,10,full=0,multi=1);
+#N = list(c(10,10,0,0,0),c(0,10,10,0,0),c(0,0,10,10,0),c(0,0,0,10,10));
 N = list(c(10,10,0,0,0),c(0,10,10,0,0),c(0,0,10,10,0),c(0,0,0,10,10),c(10,0,0,0,10));
 dt = RandomData(N,10000,sd.batch=.5,sd.error=1);
 
@@ -51,3 +56,4 @@ df1.emp=M1.emp**2/M2.emp; var.emp=M2.emp/M1.emp; ratio.emp=1/test$N.adjust.emp;
 print.vars('ESTIMATES FROM THEORY:',M1.est,M2.est,df1.est,var.est,ratio.est);
 print.vars('EMPIRICAL ESTIMATES:',M1.emp,M2.emp,df1.emp,var.emp,ratio.emp);
 print.vars('EIGENVALUES OF M:',Meig);
+
