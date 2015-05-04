@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link href="shared/shiny.css" rel="stylesheet" />
+<link href="shared/selectize/css/selectize.bootstrap3.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="bootstrap.css"/>
+  <title>Batch Adjustment Simulator</title>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+    	<div class="col-sm-1"></div>
+      <div class="col-sm-5">
+      <br/>
+      <a href="helptext.html#about">About</a><br/>
+      <a href="helptext.html#illustrative">Illustrative examples</a><br/>
+      <a href="helptext.html#real">Real world examples</a>
+      <br/>
+      <br/>
+        <br/>
+              <a name="about"></a>
+        <h2>About</h2>
+  
+
+<p>This tool tries, with the use of simulations, to illustrate that adjusting for batch effects can lead to false results. 
+
+Working with our publication, &ldquo;Methods that remove batch effects while retaining group differences may lead to exaggerated confidence in downstream analyses&rdquo;, we had difficulty in making our main figure (figure 1) convey all the concepts we wanted it to, yet still being intelligible and within the space requirement. This shiny application was motivated by the realization that an interactive plot, where the user could tweak the parameters and see the result, would help in understanding our message. Another motivation was to learn shiny through a real (and hopefully) useful use-case. In short, this shiny app is an interactive version of figure 1 from our paper.</p>
+<br/>
+
+
+<h4>Problem description</h4>
+<p>
+Large data sets, typically from experiments in molecular biology, often contain batch effects. To alleviate this problem, a <b>two-step approach for analyzing data with batch effects</b> is often used. However, this might introduce other problems instead.<br/><br/>
+
+First, a brief description of the two steps:
+
+<ul>
+<li>
+<strong>Step 1</strong>: The batch effects are estimated and a new data set is created where that estimate is removed (i.e a number subtracted or added to each value). The new data set is assumed to be batch effect free.
+</li>
+<li>
+<strong>Step 2</strong>:  A statistical test is performed on the new data set, without using the batch information. Typically, this is a comparison of the values from two study groups resulting in a observed difference and a p-value as a measure of confidence.
+</li>
+</ul>
+
+The two-step approach can lead to two types of error:
+
+<ul>
+<li>
+<strong>False confidence</strong>
+There are uncertainties stemming from sampling and measurement errors involved in step 1, and the batch effect estimates can be seen as best guesses (point estimates) based on limited information, but they are inevitably often wrong. However, this uncertainty is not accounted for in the confidence measure (p-values) in step 2, potentially misleading the investigator to put too much trust in the observed group differences. 
+</li>
+<li>
+<strong>False group differences</strong>
+The method applied in step 1 might be unable to distinguish batch effects from group effects and in practice adjust for group effects as well. This will in step 2 be observed as decreased differences between some groups and potentially increased differences between other groups. 
+</li>
+</ul>
+
+
+The amount and type of error introduced by the two-step procedure will vary depending on many things:
+<ul>
+
+<li>The applied batch adjustment method and its run parameters</li>
+<li>The real group and batch effects</li>
+<li>The size of the batches</li>
+<li>The group/batch balance</li>
+</ul>
+Of these, the group/batch balance is the most important factor. If the two groups tested in step 2 for the most part are present in different batches, then the two step procedure will often fail. However, if the samples are distributed in such a way that every batch has about the same group composition, the errors arising from the 2 step approach will be minor and often ignorable.
+</p>
+
+
+<br/>
+
+<h4>Simulation</h4>
+<p>
+The simulated setting is a high throughput molecular biology experiment, for instance expression microarrays with 1000 data points (genes) from n samples belonging to up to 3 groups (A,B and C) and measured in up to 3 batches. The user can change the number of samples in each group and batch, and set group and batch effects. Three data sets are made, each consisting of a n x 1000 matrix:
+</p>
+<ul>
+  <li><strong>True data</strong>; This simulates the true biological values. The data points are drawn from a population with a baseline mean of 10 and a standard deviation of 1. The group effect is added as a fixed value to all data points in that group. This data set can be seen as a theoretical best result for a batch adjustment method (since the batch effect is not included).</li>
+  <li><strong>Observed data</strong>; Created by adding the batch effect as a fixed value to all data point in that batch. This simulates what the data would look like for an investigator, where each data point is a combination of a group effect, batch effect and some random variation.</li>
+  <li><strong>Batch adjusted data</strong>; The matrix resulting after a batch adjustment tool has tried to estimate and remove batch effect from the observed data.  </li>
+</ul>
+<p>
+For these three data sets, using limma, a &ldquo;differentially expressed genes&rdquo;-test is performed between the groups (not including batch in the test). 
+</p>
+<p>
+The simulation does not aim to make a data set with very realistic properties. For a real data set, the batch and group effects would vary from gene to gene, and the within group and batch variation would not need be equal across groups and batches. However, our simplistic approach is well suited for demonstrating the adverse effect of batch adjustment.
+</p>
+<br/>
+
+<h4>Plots</h4>
+<p>
+Two plots are made for each of the 3 data sets:
+<ul>
+  <li><strong>Data points for one gene</strong>; The values(Y-axis) from one example gene across all the samples(X-axis) are plotted. Samples are ordered along the X-axis by batch and group. This plot illustrates how the data points changes as a result of batch adjustment, or parameter adjustments for the simulation. For each group, the mean with a 95% confidence interval is plotted as a box over or to the right of the data points.</li>
+  <li><strong>P-values for all genes</strong>; A histogram of the p-values for the selected group comparison is to the far right. A comparison of the histogram for the batch adjusted data with the one for the true data gives a indication of the success of the batch adjustment.</li>
+</ul>
+ A fourth row of plots shows the 95% Confidence interval calculated from LSmeans when batch and group are simultaneously estimated in a 2-way ANOVA. The p-values for the 100 simulations are still made in limma, but with batch included in the model as well.
+ <br/> 
+ The plots and their elements can be turned off and on.</p>
+<br/>
+
+<h4>Batch adjustment methods</h4>
+<p>
+Three batch adjustment methods are available:
+<ul>
+  <li><strong>Mean-centring</strong> is a simple transformation where, for each gene, the global mean minus the batch mean is added to the values. The group information is not used.</li>
+  <li><strong>ComBat</strong> does a location and scale adjustment of the batches, with the help of ANOVA and empirical Bayes. There is an option to include group labels (covariates) in order to try to retain the group effects.</li>
+  <li><strong>removeBatchEffects</strong>;  Does a location adjustment of the batches based on ANOVA and can also include group labels (works as the Mean-centring without). This method from the limma package warns against doing linear modelling on the adjusted matrix (i.e the two step approach implemented in this shiny app). However, it is good at illustrating the problem since it lacks the empirical Bayes included in ComBat.</li>
+</ul>
+
+There are other related methods as well, however, ComBat is probably the most cited and the problem we are trying to illustrate can most likely apply to all methods that claim to produce a batch effect free data matrix.
+</p>
+<br/><br/>
+
+
+<a name="illustrative"></a>
+<h2>Illustrative examples</h2>
+<p>Here, a few constructed examples are presented in pedagogical ("dumbed down") step-wise manner (or all plots revealed at once).</p>
+<br/>
+<h4>Adjust for batch without preserving group differences (Mean-centring)</h4>
+
+[<a href="../?adjustmethod=Mean-centring&batcheffectvalue1=2&batcheffecttype=mean&groupeffecttype=mean&batcheffectvalue2=-2&batcheffectvalue3=0&blackbg=FALSE&countA1=25&countA2=0&countA3=0&countB1=5&countB2=20&countB3=0&countC1=0&countC2=30&countC3=0&groupeffectA=4&groupeffectB=4&groupeffectC=-1&plotbatchadjusted=FALSE&plotbatchaffected=FALSE&plotbatchbox=FALSE&plotCI=none&plotlsmeans=FALSE&plotpvaluehist=none&plottrue=TRUE&rngseed=139">Initial plot</a>]
+
+[<a href="../?adjustmethod=Mean-centring&batcheffecttype=mean&groupeffecttype=mean&batcheffectvalue1=2&batcheffectvalue2=-2&batcheffectvalue3=0&blackbg=FALSE&countA1=25&countA2=0&countA3=0&countB1=5&countB2=20&countB3=0&countC1=0&countC2=30&countC3=0&groupeffectA=4&groupeffectB=4&groupeffectC=-1&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&rngseed=139">All plots</a>]
+
+
+<p> Adjusting the batches so their means are equal is a simple transformation which does not utilize group information. This simulation shows that treating data adjusted in such a way as batch effect free, can lead to false results. The simulated example consists of 80 samples from three groups in two batches. Batch 1 has 25 As and 5 Bs and Batch 2 has 20 Bs and 30 Cs. </p>
+
+<p>The first plot shows the simulated values(Y-axis) for one gene across all the 80 samples(X-axis). A group effect of 4 is added to both A and B, thus their values are drawn from the same population (mean=14, sd=1). A group effect of -1 is added to the C values (mean=9, sd=1), so there is a "true" difference between A and C, and between B and C. Batch effects are not yet added in this first plot, so this represents the &ldquo;true&rdquo; biological values.</p>
+
+<p>To see if there are significant differences between the groups, select <b>&ldquo;Over Values&rdquo;</b> from the &ldquo;Plot 95% Confidence Interval Boxes&rdquo;-control. The CI for A and B overlap while the CI for C is clearly vertically separated from the others. Thus, the conclusion would be that C differ from A and B.</p>
+
+<p>Select <b>&ldquo;A vs. B&rdquo;</b>  in the &ldquo;P-value plot 1000 simulations:&rdquo;-control to run this simulation 1000 times and plot the p-value distribution. The p-values are evenly distributed as they should be when all samples are drawn from the same population. When the p-values for the <b>&ldquo;A vs. C&rdquo;</b> comparison is plotted, it is clear that most of the simulation would result in a correct conclusion of a different mean for the A and C population. </p>
+
+<p>However, the &ldquo;true&rdquo; biological values in this study are not observed, since the measurements are influenced by a batch effect as well. Check the <b>&ldquo;Plot batch boxes&rdquo;</b> to see how the samples were measured in different batches. To see this clearer you may remove the CI-plots, or move them to the right side of the plot. </p>
+
+<p>In this simulation, Batch 1 was given a batch effect of +2 (added to the &ldquo;true&rdquo;-values) and -2 were added to samples from Batch 2. The simulated batch effects are manipulated in the &ldquo;Batch effects&rdquo;-control. Check the <b>&ldquo;Batch affected values&rdquo;</b> in the &ldquo;Plot values from one example gene as:&rdquo;-control. This shows what the measurements looked like for the investigator. The CI-boxes are now separated, thus if the batch effect is ignored, the false conclusion of a differentially expressed gene would be drawn. Likewise, the p-value plot for 1000 simulations shows that most p-values are really low for also for the A vs B comparison.</p>
+
+<p>A mean-centring transformation is used to adjust for the batch effect. The global mean minus the batch mean is added to the values, disregarding group information. Check the <b>&ldquo;Batch adjusted values&rdquo;</b> in the &ldquo;Plot values from one example gene as:&rdquo;-control. This will reveal the values after the mean-centring. The CI-boxes indicates that the As have a mean significantly below the Bs. This will again lead to a false conclusion, and from the p-value distribution plot, we can see that this affects many of the 1000 simulation. An additional problem is that the C group had become more similar to the A group. However this is not so apparent from the p-value distribution plot. Increase the group effect for C to 2 and observe the difference in the p-value plot for the &ldquo;True&ldquo; and the Mean-centred values for the A vs. C comparison. The mean-centring batch adjustment can both induce (A vs. B) or reduce (A vs. C) group differences as long as there are at least two batches, two groups (three need too induce) and some batch and group effects.</p>
+
+<p>A safer way to handle batch effect is to include batch labels in the statistical model. The last plot, <b>&ldquo;Batch as factor in 2-way ANOVA&rdquo;</b>, shows he CI-boxes as calculated with a 2-way ANOVA and the LSmeans estimates. The p-value distribution plot for 1000 simulations are calculated with limma where batch is included in the model.</p>
+<br/>
+
+<h4>Adjust for batch while preserving group differences</h4>
+
+[<a href="../?adjustmethod=ComBat&plotbatchbox=FALSE&batcheffecttype=mean&groupeffecttype=mean&batcheffectvalue1=2&batcheffectvalue2=0&batcheffectvalue3=-2&blackbg=FALSE&plotCI=none&countA1=10&countA2=1&countA3=0&countB1=0&countB2=1&countB3=10&countC1=0&countC2=0&countC3=0&groupeffectA=0&groupeffectB=0&groupeffectC=0&plotpvaluehist=none&plotbatchadjusted=FALSE&plotbatchaffected=FALSE&plotlsmeans=FALSE&plottrue=TRUE&rngseed=139">Initial plot</a>] 
+
+[<a href="../?adjustmethod=ComBat&batcheffectvalue1=2&batcheffecttype=mean&groupeffecttype=mean&batcheffectvalue2=0&batcheffectvalue3=-2&blackbg=FALSE&countA1=10&countA2=1&countA3=0&countB1=0&countB2=1&countB3=10&countC1=0&countC2=0&countC3=0&groupeffectA=0&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&rngseed=139">All plots</a>]
+
+
+
+<p>This example illustrates that for a severely unbalanced design, including group labels will lead to false results. The experiment consists of 22 samples from two groups(A and B) spread across 3 batches. As seen in the &ldquo;Number of samples from each group&rdquo;-control; Batch 1 has 10 samples from group A, Batch 2 has one A and one B while Batch 3 has 10 samples from group B. Notice that Batch 1 and Batch 3 are &ldquo;single-group-batches&rdquo;. This is a very bad design and probably not very realistic, however it illustrates the problem well. The groups could be patients given two different drugs (A or B), and the aim of the study could be to see if their gene expressions are different.</p>
+
+<p>The first plot shows the simulated values(Y-axis) for one gene across all the 22 samples(X-axis). Zero group effect is selected in the &ldquo;Group effects&rdquo;-control, so the all the values are drawn from the same population (mean=10, sd=1). Batch effects are not yet added in this first plot, so this represents the &ldquo;true&rdquo; biological values.</p>
+
+<p>To see if there is a significant group difference, select <b>&ldquo;Over Values&rdquo;</b> from the &ldquo;Plot 95% Confidence Interval Boxes&rdquo;-control. Since the CI-boxes overlap vertically, there is not a significant difference.</p>
+
+<p>Select <b>&ldquo;A vs. B&rdquo;</b>  in the &ldquo;P-value plot 1000 simulations:&rdquo;-control to run this simulation 1000 times and plot the p-value distribution. The p-values are evenly distributed as they should be when all samples are drawn from the same population.</p>
+
+<p>However, the &ldquo;true&rdquo; biological values in this study are not observed, since the measurements are influenced by a batch effect as well. Check the <b>&ldquo;Plot batch boxes&rdquo;</b> to see how the samples were measured in different batches. To see this clearer you may remove the CI-plots, or move them to the right side of the plot. </p>
+
+<p>In this simulation, Batch 1 was given a batch effect of +2 (added to the &ldquo;true&rdquo;-values) and -2 were added to samples from Batch 3. The simulated batch effects are manipulated in the &ldquo;Batch effects&rdquo;-control. Check the <b>&ldquo;Batch affected values&rdquo;</b> in the &ldquo;Plot values from one example gene as:&rdquo;-control. This shows what the measurements looked like for the investigator. The CI-boxes are now separated, thus if the batch effect is ignored, the false conclusion of a differentially expressed gene would be drawn. Likewise, the p-value plot for 1000 simulations shows that most p-values are really low. These plots illustrate the importance of taking the batch effect into account when doing these &ldquo;find differentially expressed genes&rdquo; kind of analyses. However, the two step procedure of first adjusting for batch, and then analyse the data as there never was any batch effect could very well lead to false results, as the next plots will show.</p>
+
+<p>Check the <b>&ldquo;Batch adjusted values&rdquo;</b> in the &ldquo;Plot values from one example gene as:&rdquo;-control. This will reveal the values after ComBat has corrected for batch effect while trying to retain the group differences. The CI-boxes indicates that the Bs have a mean significantly above the As. This will again lead to a false conclusion, and from the p-value distribution plot, we can see that this affects many of the 1000 simulation.</p>
+
+<p>Pay special attention to the batch adjusted values in batch 2 (the &ldquo;community&rdquo;-batch), and you will notice that the group means are almost identical to those two values. Now, increase the <b>&ldquo;seed&rdquo;</b>-control with one many times over. This will re-do the simulation with another random seed and draw  other values with corresponding plots. Observe that the group means are very close to the two values in batch 2. There are some deviation, probably from ComBat&#39;s use of empirical Bayes to estimate the batch effect (in addition to ANOVA). By choosing <b>&ldquo;removeBatchEffect&rdquo;</b> in the &ldquo;Adjust method&rdquo;-control, you will see that the group means are always set to the two values in batch 2. Batch 1 with only As is adjusted so their mean is the value of the lone A in Batch 2, and likewise for Batch 3 with the Bs. Thus, the group difference between A and B is in practice the same as the difference between the A and B inside Batch 2, and the effective sample size is just 2. However, if the batch adjusted data are used without considering batch, a sample size of 22 is assumed when calculating the CI for the mean group estimates (and p-values), and a untrue small CI is the result.</p>
+
+<p>The amount of false results from this procedure is related to the group-batch unbalance. This can be observed by making the experiment setup more balanced. In the <b>&ldquo;Number of samples from each group&rdquo;</b>-control, increasingly add Bs to Batch 1 and As to Batch 3 and notice that the p-value plot quickly becomes less skewed. For a fairly balanced design, the p-value plot is almost uniform. However, when surveying 10s of thousands of probes, a short list of differentially expressed genes, might all be false due to this problem.</p>
+
+<p>If the goal of the study was to find differentially expressed genes between the two groups, a safer way to handle batch effects is to include the batch labels as a factor in the statistical test. This can be done in a 2-way ANOVA analysis or with the related approach in the limma package. In the &ldquo;Plot values from one example gene as&rdquo;-control, check the <b>&ldquo;Batch as factor in 2-way ANOVA&rdquo;</b> to reveal a 4th. row of plots. The CI-boxes are calculated with a 2-way ANOVA and the LSmeans estimates. The p-value distribution plot for 1000 simulations are calculated with limma where batch is included in the model.</p>
+<br/>
+
+<h4>Figure 1</h4>
+[<a href="../?adjustmethod=Mean-centring&batcheffecttype=mean&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=-2&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=25&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=0&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=5&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=20&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=30&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=4&groupeffectB=4&groupeffectC=-1&groupeffectfraction=1&groupeffecttype=mean&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&printbatchshift=FALSE&pvalueplotxlim=1&rngseed=139&zerocentre=FALSE">Fig1 a,b,c,e</a>]
+[<a href="../?adjustmethod=removeBatchEffect&batcheffecttype=mean&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=-2&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=25&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=0&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=5&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=20&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=30&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=4&groupeffectB=4&groupeffectC=-1&groupeffectfraction=1&groupeffecttype=mean&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&printbatchshift=FALSE&pvalueplotxlim=1&rngseed=139&zerocentre=FALSE">Fig1 a,b,d,e</a>]
+<p>
+This is the simulation used to produce Figure 1 as it appears in our article. The plots made by the shiny app should only differ in colors, symbols used, plot positioning or plot scaling. The values are the same, but the p-value plot for 1000 simulations is only made in the simulator. However, Figure 1 in the article shows two different adjustment methods (Fig1c;mean-centring and Fig1d; Anova-adjusted with removeBatchEffects), but the simulator can only show one method at a time, thus there are two links.
+</p>
+
+ 
+<br/>
+<br/>
+<a name="real"></a>
+<h3>Real world examples</h3>
+<p>
+Here are a few examples from the literature where batch adjustment has been performed on mostly unbalanced data sets, and the downstream confidence in the group differences might have, to a varying degree, been exaggerated as a consequence. The group/batch design is entered into the the batch adjustment simulator and simulated data are created. Be aware that this is not a reproduction of their work since their real data is not use. Exactly what their design and parameter setting were are often not clear from reading their methods section and some reasonable assumptions are done (which might anyways be wrong).
+</p>
+<br/>
+
+<h4><i>Adjusting batch effects in microarray expression data using empirical Bayes methods</i></h4>
+
+[<a href="../?adjustmethod=ComBat%20no%20covariates&batcheffectvalue1=0&batcheffectvalue2=1&batcheffectvalue3=2&blackbg=FALSE&countA1=2&countA2=2&countA3=2&countB1=2&countB2=2&countB3=2&countC1=0&countC2=0&countC3=0&groupeffectfraction=0.1&groupeffectA=1&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&rngseed=139">Simulation Data set 1</a>]  [<a href="http://biostatistics.oxfordjournals.org/content/8/1/118.full">Article</a>]
+<p>
+	This experiment is provided by Johnson et al. in their article describing the ComBat method. 12 samples with two treatments (groups) are equally spread across 3 batches. Covariates were not included in the ComBat adjustment. This experiment set-up is well-balanced regarding group and batch, and the p-value plot for the test on the adjusted data does not indicate a problem. However, if the number of samples from each group in the batches is reduced to 1 (from 2 now) and ComBat is run with the covariate option, then the number of genes deemed significant (FDR less than 0.05) are often somwhat optimistic.
+</p>
+
+[<a href="../?adjustmethod=ComBat&batcheffectvalue1=-1&batcheffectvalue2=0&batcheffectvalue3=0&blackbg=FALSE&countA1=6&countA2=3&countA3=9&countB1=2&countB2=4&countB3=6&countC1=0&countC2=0&countC3=0&groupeffectA=1&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&rngseed=139">Simulation Data set 2</a>]
+
+ [<a href="http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf">Supplementary information</a>]
+ 
+ <p>
+	Johnson et al. provided another data set in their supplementary as a use-case where the groups were not balanced in the batches and covariates were included when ComBat were run. However, the design was only modestly unbalanced and the number of genes falsely reported as differentially expressed between the two groups, was probably small.  
+</p>
+<br/>
+
+<h4><i>Standard of hygiene and immune adaptation in newborn infants</i></h4>
+[<a href="../?adjustmethod=ComBat&batcheffectvalue1=2&batcheffectvalue2=0&batcheffectvalue3=-2&blackbg=FALSE&countA1=4&countA2=44&countA3=0&countB1=4&countB2=21&countB3=0&countC1=7&countC2=0&countC3=33&groupeffectA=0&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=AC&plottrue=TRUE&rngseed=139">Simulation</a>]  [<a href="http://www.sciencedirect.com/science/article/pii/S1521661614002204">Article</a>]
+
+<p>Kallionpääa and colleagues tested mRNA expression in newborns from 3 different cities (groups) and found many genes that differed. Their microarray experiments were performed in batches which unfortunately had a huge overlap with the groups. To alleviate the problem, some samples were re-hybridized and ComBat was applied to adjusted for the batch effect. There are some uncertainty exactly how this was done and what the group/batch design was. It is also not stated that covariates were used when ComBat was run, however this seems likely. The simulator is set up with what we think were their design and ComBat options. However, they seem to have been running the subsequent statistical test on a slightly smaller subset of samples, but our simulator can only use the same samples as were used in the batch adjustment. No group effects are simulated in order to illustrate that they could have reached their conclusion irrespective of any real group differences. The microarray experiments and the conclusion drawn from it, seems to be an important part of their article.</p>
+<br/>
+
+<h4><i>A recurrent inactivating mutation in RHOA GTPase in angioimmunoblastic T cell lymphoma</i></h4>
+[<a href="../?adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=-2&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=9&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=6&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=0&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=5&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=0&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=4&groupeffectB=0&groupeffectC=0&groupeffectfraction=0.1&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&pvalueplotxlim=1&rngseed=139">Simulation</a>]  [<a href="http://www.nature.com/ng/journal/v46/n4/full/ng.2916.html">Article</a>]
+<p>As an extended part of their investigation of mutations in T cell lymphoma, Yoo and colleges performed RNA sequencing of 9 tumor samples. In order to compare the tumor sample with normal samples, an older microarray data set consisting of 6 tumor samples and 5 normal samples were combined with the sequencing data. ComBat was used to adjust for the batch effects between the two platforms. There is no mention of using the covariates option in ComBat, but it seems very likely that this was done. Aligning the "one-group"-batch (9 tumor sample) to the microarray data set (6 tumor, 5 normal) with ComBat would probably have made the p-values artificially lower. However, judging from a <a href="http://www.nature.com/ng/journal/v46/n4/fig_tab/ng.2916_SF8.html">heatmap</a> presented in the supplementary information, it seems that there was a large group effect present in the microarray data already, so the p-values were decreased from "really low" to "even lower". This is reflected in the unusual low q-value cut-off chosen (0.0001), and it is unlikely that many wrong conclusions could have been drawn from this. However, the sequencing data probably contributes little to this gene list and the subsequent pathway analysis. The expression study seems to be a minor part of the article.</p>
+<br/>
+
+<h4><i>Molecular Profiling of Single Sca-1+/CD34+,− Cells—The Putative Murine Lung Stem Cells</i></h4>
+[<a href="../?adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=-2&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=10&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=0&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=4&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=3&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=7&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=5&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=0&groupeffectB=0&groupeffectC=0&groupeffectfraction=0.1&ngenes=10000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&pvalueplotxlim=1&rngseed=139">Simulation</a>]  [<a href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0083917">Article</a>]
+<p>
+  As part of their investigation of murine lung stem cells, Hittinger and colleges conducted a microarray gene expression experiment using three different cell types spread across two batches. Their design is moderately unbalanced, and the p-value plot made from the zero group effect simulation shows only a hint of a skewed distribution.
+</p>
+<br/>
+
+
+
+<br/>
+
+
+<!--
+Towfic
+http://127.0.0.1:7574/?numberofbatches=20&adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=1&batcheffectvalue10=1&batcheffectvalue11=1&batcheffectvalue12=1&batcheffectvalue13=1&batcheffectvalue14=1&batcheffectvalue15=1&batcheffectvalue16=1&batcheffectvalue17=1&batcheffectvalue2=1&batcheffectvalue3=1&batcheffectvalue4=1&batcheffectvalue5=1&batcheffectvalue6=1&batcheffectvalue7=1&batcheffectvalue8=1&batcheffectvalue9=1&blackbg=FALSE&countA1=4&countA10=1&countA11=1&countA12=1&countA13=2&countA14=2&countA15=2&countA16=1&countA17=1&countA2=0&countA3=1&countA4=5&countA5=4&countA6=1&countA7=4&countA8=2&countA9=2&countB1=0&countB10=0&countB11=2&countB12=2&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB2=2&countB3=1&countB4=0&countB5=0&countB6=1&countB7=1&countB8=1&countB9=1&countC1=1&countC10=1&countC11=2&countC12=1&countC13=1&countC14=1&countC15=1&countC16=1&countC17=1&countC2=1&countC3=1&countC4=0&countC5=2&countC6=2&countC7=1&countC8=0&countC9=1&groupeffectA=0&groupeffectB=0&groupeffectC=0&ngenes=1000&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&pvalueplotxlim=1&rngseed=139
+-->
+        <br/>
+        <br/>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
