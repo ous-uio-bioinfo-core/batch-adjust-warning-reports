@@ -141,8 +141,8 @@ batchadjustplot = function(input)
   else
     par(bg= "white", fg="black", col.axis="black", col.lab="black", col.main="black", col.sub="black")
   
-    save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
-#  http://127.0.0.1:5575/?adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=0&batcheffectvalue20=0&batcheffectvalue3=-2&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=7&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=0&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=4&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=4&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=7&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=2&groupeffectB=0&groupeffectC=2&groupeffectfraction=1&groupeffecttype=sd&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&printbatchshift=FALSE&pvalueplotxlim=1&rngseed=139&zerocentre=FALSE&
+#    save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
+
 
 
 batchmean_real=unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_true[index,sa$batch==x])))
