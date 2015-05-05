@@ -8,13 +8,13 @@ baselinesignal=10
 
 #initial settings
 countsdefault = matrix(0, nrow=length(batches), ncol=length(groups), dimnames=list(batches, groups))
-countsdefault[1,] = c(25,5,0)
-countsdefault[2,] = c(0,20,30)
+countsdefault[1,] = c(5,2,0)
+countsdefault[2,] = c(0,2,5)
 groupeffectdefaults = rep(0, length(groups))
-groupeffectdefaults[1:3] = c(4,4,-1)
+groupeffectdefaults[1:3] = c(0,0,0)
 names(groupeffectdefaults) = groups
 batcheffectdefaults = rep(0, length(batches))
-batcheffectdefaults[1:2] = c(2,-2)
+batcheffectdefaults[1:2] = c(0,2)
 
 
 designheader = function(group)
