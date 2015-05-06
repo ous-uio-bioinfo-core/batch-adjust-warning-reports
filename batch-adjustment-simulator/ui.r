@@ -172,6 +172,7 @@ shinyUI(
                         "p-val histogram B vs. C" = "BC",
                       	"PCA,  SLOW!" = "pca",
                         "PVCA,  SLOW!" = "pvca",
+                        "h-clust,  SLOW!" = "hclust",
                         "Do not plot" = "none"))
         ),
         

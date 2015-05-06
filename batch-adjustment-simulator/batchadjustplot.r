@@ -3,6 +3,7 @@ library(sva)
 library(limma)
 library(lsmeans)
 library(pvca)
+library(NMF)
 
 makeoptionslink = function(input)
 {
@@ -141,7 +142,7 @@ batchadjustplot = function(input)
   else
     par(bg= "white", fg="black", col.axis="black", col.lab="black", col.main="black", col.sub="black")
   
-#    save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
+ #  save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
 
 
 
@@ -164,10 +165,11 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
       plot_pvca(matrix_true, sa[,-1])
     else if(input$plotpvaluehist=="pca")
     	plot_pca(matrix_true, sa[,-1])
+    else if(input$plotpvaluehist=="hclust")
+      plot_hclust(matrix_true, sa[,-1]) 
     else
       plot_blank()
   }
-
   if(input$plotbatchaffected)
   {
   	bbshift=NULL
@@ -184,6 +186,8 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
   	  plot_pvca(matrix_batcheffect, sa[,-1])
   	else if(input$plotpvaluehist=="pca")
   		plot_pca(matrix_batcheffect, sa[,-1])
+  	else if(input$plotpvaluehist=="hclust")
+  	  plot_hclust(matrix_batcheffect, sa[,-1]) 
   	else
   	  plot_blank()
   }
@@ -204,6 +208,8 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
   	  plot_pvca(matrix_batchadjusted, sa[,-1])
   	else if(input$plotpvaluehist=="pca")
   		plot_pca(matrix_batchadjusted, sa[,-1])
+  	else if(input$plotpvaluehist=="hclust")
+  	  plot_hclust(matrix_batchadjusted, sa[,-1])  	
   	else
   	  plot_blank()
   }
@@ -289,6 +295,21 @@ plot_pca = function(dm, sa)
 {
 	thisprcomp=prcomp( t(dm) )
 	plot(thisprcomp$x,  col=adhoc.palette[sa$group], cex=2,  main="PCA-plot", pch=as.character(sa$batch) , cex.main=1, axes=FALSE)
+}
+
+
+plot_hclust = function(dm, sa)
+{
+  #par( par(no.readonly=T))
+  #rownames(dm) = paste("gene_", 1:nrow(dm), sep="")
+  #print(("mar"))
+  grouppalette = list( "group"=adhoc.palette, "batch"=c("red", "blue"))
+  aheatmap(dm, scale = "row", Rowv=F, Colv=T, 
+           color = colorRampPalette(c("red", "black", "green"))(n = 299),
+           annCol = sa[, c( "group"), drop=F],  cexCol=2,
+           cellheight=0, labRow=NA, labCol=sa$batch, legend=F, annLegend=F,
+           main=paste("",sep=""),border_color=NA, annColors=grouppalette)
+  
 }
 
 adhoc.cex=2
