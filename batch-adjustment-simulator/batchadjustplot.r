@@ -3,7 +3,7 @@ library(sva)
 library(limma)
 library(lsmeans)
 library(pvca)
-library(NMF)
+library(dendextend)
 
 makeoptionslink = function(input)
 {
@@ -142,7 +142,7 @@ batchadjustplot = function(input)
   else
     par(bg= "white", fg="black", col.axis="black", col.lab="black", col.main="black", col.sub="black")
   
- #  save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
+   save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
 
 
 
@@ -238,6 +238,29 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
 }
 
 
+
+##### plot visual settings
+adhoc.cex=2
+adhoc.legendcex=adhoc.cex
+adhoc.pch = c(3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+
+adhoc.usecolor = function(usecolor=TRUE) {
+	if (usecolor) {
+		adhoc.palette <<- c("darkred", "darkgreen", "darkblue")
+		adhoc.palette.line <<- c("red", "seagreen", "blue"); # adjustcolor(adhoc.palette[g], linealpha)
+		adhoc.palette.fill <<- c("lightpink", "seagreen1", "lightblue"); # adjustcolor(adhoc.palette[g],boxalpha))
+		adhoc.batch.colour<<- "darkgray"; #adjustcolor("black", 0.3)
+	} else {
+		adhoc.palette <<-  c("black","black","black","black")
+		adhoc.palette.line <<- c("darkgray", "darkgray", "darkgray"); # adjustcolor(adhoc.palette[g], linealpha)
+		adhoc.palette.fill <<- c("lightgray", "lightgray", "lightgray"); # adjustcolor(adhoc.palette[g],boxalpha))
+		adhoc.batch.colour <<- "darkgray"; #adjustcolor("black", 0.3)
+	}
+}
+adhoc.usecolor();
+
+
+
 plot_blank = function()
 {
   plot(0,type='n',axes=FALSE,ann=FALSE)
@@ -260,8 +283,6 @@ plot_pvals = function(dm, group, pair, batch=NULL, pvaluemax=1, fdr=0.05, tpinde
   tp = 0
   if(tpindexmax>0)
  		tp = sum(limma_fdr[1:tpindexmax]<fdr)
-  #hist(limma_p, breaks=20, xlim=c(0,1), 
-  #      main=paste(pair[1], "vs." , pair[2], ", ", nrow(dm), " simulations", sep=" "), xlab="P-value")
   
   breaks = 20 * 1/pvaluemax
   hist(limma_p, breaks=breaks, xlim=c(0,pvaluemax), 
@@ -297,41 +318,25 @@ plot_pca = function(dm, sa)
 	plot(thisprcomp$x,  col=adhoc.palette[sa$group], cex=2,  main="PCA-plot", pch=as.character(sa$batch) , cex.main=1, axes=FALSE)
 }
 
-
 plot_hclust = function(dm, sa)
-{
-  #par( par(no.readonly=T))
-  #rownames(dm) = paste("gene_", 1:nrow(dm), sep="")
-  #print(("mar"))
-  grouppalette = list( "group"=adhoc.palette, "batch"=c("red", "blue"))
-  aheatmap(dm, scale = "row", Rowv=F, Colv=T, 
-           color = colorRampPalette(c("red", "black", "green"))(n = 299),
-           annCol = sa[, c( "group"), drop=F],  cexCol=2,
-           cellheight=0, labRow=NA, labCol=sa$batch, legend=F, annLegend=F,
-           main=paste("",sep=""),border_color=NA, annColors=grouppalette)
-  
+{	
+	dend <- as.dendrogram(hclust(dist(t(dm))))
+	groupcols = adhoc.palette[ sa[labels(dend), "group"]]
+	dend <- color_branches(dend, col =groupcols )
+	if(ncol(dm)>25)
+	{
+		labels(dend) = paste( " ", unlist(lapply( sa[labels(dend), "batch"], FUN=function(x)paste(rep("-", x), collapse="") )), sep="")
+	}	else {
+		labels(dend) = as.character(sa[labels(dend), "batch"])
+	}
+	labels_colors(dend) = "black"
+	dend <- set(dend, "labels_cex", 1.5)
+	dend <- set(dend, "branches_lwd", 3)
+	dend <- set(dend, "leaves_pch", 15)
+	dend <- set(dend, "leaves_cex", 3)
+	dend <- set(dend, "leaves_col", groupcols )
+	plot(dend, main = "", axes=F, horiz =  TRUE)
 }
-
-adhoc.cex=2
-adhoc.legendcex=adhoc.cex
-adhoc.pch = c(3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
-
-adhoc.usecolor = function(usecolor=TRUE) {
-  if (usecolor) {
-    adhoc.palette <<- c("darkred", "darkgreen", "darkblue")
-    adhoc.palette.line <<- c("red", "seagreen", "blue"); # adjustcolor(adhoc.palette[g], linealpha)
-    adhoc.palette.fill <<- c("lightpink", "seagreen1", "lightblue"); # adjustcolor(adhoc.palette[g],boxalpha))
-    adhoc.batch.colour<<- "darkgray"; #adjustcolor("black", 0.3)
-  } else {
-    adhoc.palette <<-  c("black","black","black","black")
-    adhoc.palette.line <<- c("darkgray", "darkgray", "darkgray"); # adjustcolor(adhoc.palette[g], linealpha)
-    adhoc.palette.fill <<- c("lightgray", "lightgray", "lightgray"); # adjustcolor(adhoc.palette[g],boxalpha))
-    adhoc.batch.colour <<- "darkgray"; #adjustcolor("black", 0.3)
-  }
-}
-adhoc.usecolor();
-
-
 
 plot_one_gene = function(y, group, batch=NULL, ylim=NULL, main="", 
                          estimatemethod="none", lwd=1, boxlabel='CI',leftmargin=1,
