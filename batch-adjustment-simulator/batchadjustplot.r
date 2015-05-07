@@ -328,12 +328,12 @@ plot_hclust = function(dm, sa)
 		labels(dend) = paste( " ", unlist(lapply( sa[labels(dend), "batch"], FUN=function(x)paste(rep("-", x), collapse="") )), sep="")
 	}	else {
 		labels(dend) = as.character(sa[labels(dend), "batch"])
+		dend <- set(dend, "leaves_pch", 15)
+		dend <- set(dend, "leaves_cex", 3)
 	}
 	labels_colors(dend) = "black"
 	dend <- set(dend, "labels_cex", 1.5)
 	dend <- set(dend, "branches_lwd", 3)
-	dend <- set(dend, "leaves_pch", 15)
-	dend <- set(dend, "leaves_cex", 3)
 	dend <- set(dend, "leaves_col", groupcols )
 	plot(dend, main = "", axes=F, horiz =  TRUE)
 }
