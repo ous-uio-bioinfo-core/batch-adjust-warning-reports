@@ -323,6 +323,8 @@ plot_hclust = function(dm, sa)
 	dend <- as.dendrogram(hclust(dist(t(dm))))
 	groupcols = adhoc.palette[ sa[labels(dend), "group"]]
 	dend <- color_branches(dend, col =groupcols )
+	labels_colors(dend) = par("fg") # must be set or crash?
+	#dend <- set(dend, "branches_col", groupcols)
 	if(ncol(dm)>25)
 	{
 		labels(dend) = paste( " ", unlist(lapply( sa[labels(dend), "batch"], FUN=function(x)paste(rep("-", x), collapse="") )), sep="")
@@ -330,11 +332,11 @@ plot_hclust = function(dm, sa)
 		labels(dend) = as.character(sa[labels(dend), "batch"])
 		dend <- set(dend, "leaves_pch", 15)
 		dend <- set(dend, "leaves_cex", 3)
+		dend <- set(dend, "leaves_col", groupcols )
 	}
-	labels_colors(dend) = "black"
+	
 	dend <- set(dend, "labels_cex", 1.5)
 	dend <- set(dend, "branches_lwd", 3)
-	dend <- set(dend, "leaves_col", groupcols )
 	plot(dend, main = "", axes=F, horiz =  TRUE)
 }
 
@@ -469,7 +471,7 @@ plot_one_gene = function(y, group, batch=NULL, ylim=NULL, main="",
     				shiftstring=paste(  round(bbshift[as.numeric(b)],2), sep="")
     		}      
     		text(labels=paste("  Batch", b,"  ",shiftstring , sep=""), y=laby, x=xleft, pos = 4 ,
-    				 cex=adhoc.legendcex, col="black")
+    				 cex=adhoc.legendcex)
     	}
     }
     
