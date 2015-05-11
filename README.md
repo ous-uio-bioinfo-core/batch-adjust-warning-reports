@@ -3,14 +3,14 @@ README for the batch-adjust-warning-reports git repository.
 ----------------------
 
 
-This git repository consists of more detailed case reports made in conjunction with, but
+This git repository consists of more detailed case reports and simulations made in conjunction with, but
 not part of, the article "Methods that remove batch effects while retaining group
 differences may lead to exaggerated confidence in downstream analyses", V. Nygaard, E. A.
 Rødland, E. Hovig, manuscript in preparation.
 
-The target audience is the especially interested ones. The reports are not peer-reviewed and might be changed or updated after the publication data.
+The target audience is the especially interested ones. The documents are not peer-reviewed and might be changed or updated after the publication data.
 
-The format of the report is html, but the underlying r-code and text is available and
+The format of the case-reports is html, but the underlying r-code and text is available and
 rerunnable. Run knit2html or the Rstudio knitr integration on the individual .rmd files to re-produce the plots and html.
 
 
@@ -32,6 +32,14 @@ Full random number re-run of the tutorial from the sva package (v3.8.0), Leek JT
 Johnson WE, Parker HS, Jaffe AE, Storey JD.(2012) The sva package for removing batch
 effects and other unwanted variation in high-throughput experiments. Bioinformatics. 2012
 Mar 15;28(6):882-3.
+
+### batch-adjustment-simulator/
+
+Source code for an interactive web application which demonstrates the effects of batch adjustment using simulated data. Made in the shiny-framework in R and accessible at https://vegard.shinyapps.io/batch-adjustment-simulator. 
+
+### theory/
+
+R-script implementing the computations described in the supplementary material section 1.
 
 ### commonscripts/
 
