@@ -13,7 +13,7 @@
   <div class="container-fluid">
     <div class="row">
     	<div class="col-sm-1"></div>
-      <div class="col-sm-5">
+      <div class="col-sm-6">
       <br/>
       <a href="helptext.html#about">About</a><br/>
       <a href="helptext.html#illustrative">Illustrative examples</a><br/>
@@ -50,7 +50,7 @@ The two-step approach can lead to two types of error:
 
 <ul>
 <li>
-<strong>False confidence</strong>
+<strong>Exaggerated confidence</strong>
 There are uncertainties stemming from sampling and measurement errors involved in step 1, and the batch effect estimates can be seen as best guesses (point estimates) based on limited information, but they are inevitably often wrong. However, this uncertainty is not accounted for in the confidence measure (p-values) in step 2, potentially misleading the investigator to put too much trust in the observed group differences. 
 </li>
 <li>
@@ -76,16 +76,14 @@ Of these, the group/batch balance is the most important factor. If the two group
 
 <h4>Simulation</h4>
 <p>
-The simulated setting is a high throughput molecular biology experiment, for instance expression microarrays with 1000 data points (genes) from n samples belonging to up to 3 groups (A,B and C) and measured in up to 3 batches. The user can change the number of samples in each group and batch, and set group and batch effects. Three data sets are made, each consisting of a n x 1000 matrix:
-</p>
+The simulated setting is a high throughput molecular biology experiment, for instance expression microarrays, with 1000 data points (genes) from n samples belonging to up to 3 groups (A,B and C) and measured in up to 3 batches. The user can change the number of samples in each group and batch, and set group and batch effects. Three data sets are made, each consisting of a n x 1000 matrix:
+
 <ul>
-  <li><strong>True data</strong>; This simulates the true biological values. The data points are drawn from a population with a baseline mean of 10 and a standard deviation of 1. The group effect is added as to all data points in that group. This data set can be seen as a theoretical best result for a batch adjustment method (since the batch effect is not included).</li>
+  <li><strong>True data</strong>; This simulates the true biological values. The data points are drawn from a population with a baseline mean of 10 and a standard deviation of 1. The group effect is added as to all or a fraction of the genes in that group. This data set can be seen as a theoretical best result for a batch adjustment method (since the batch effect is not included).</li>
   <li><strong>Observed data</strong>; Created by adding the batch effect to all data point in that batch. This simulates what the data would look like for an investigator, where each data point is a combination of a group effect, batch effect and some random variation.</li>
   <li><strong>Batch adjusted data</strong>; The matrix resulting after a batch adjustment tool has tried to estimate and remove batch effect from the observed data.  </li>
 </ul>
-The group and batch effect can either be a given number equal for all genes, or for each gene drawn from a normal distribution with mean 0 and a given sd. The former is useful for the one-gene plot, while the latter is more realistic and may produce more useful diagnostic plots.
-<p>
-For these three data sets, using limma, a &ldquo;differentially expressed genes&rdquo;-test is performed between the groups (not including batch in the test). Lastly, batch is included in limma as a blocking factor in order to demonstrate the results from a safer one-step approach for analyzing data with batch effects.
+The group and batch effect can either be a given number equal for all genes, or for each gene drawn from a normal distribution with mean 0 and a given sd. The former is useful for the one-gene plot, while the latter is more realistic and may produce more useful diagnostic plots. For these three data sets, using limma, a &ldquo;differentially expressed genes&rdquo;-test is performed between the groups (not including batch in the test). Lastly, batch is included in limma as a blocking factor in order to demonstrate the results from a safer one-step approach for analyzing data with batch effects.
 </p>
 <p>
 The simulation does not aim to make a data set with very realistic properties. However, our simplistic approach is well suited for demonstrating the adverse effect of batch adjustment.

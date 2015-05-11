@@ -37,9 +37,9 @@ Mar 15;28(6):882-3.
 
 Source code for an interactive web application which demonstrates the effects of batch adjustment using simulated data. Made in the shiny-framework in R and accessible at https://vegard.shinyapps.io/batch-adjustment-simulator. 
 
-### theory/
+### theory/F-distribution.r
 
-R-script implementing the computations described in the supplementary material section 1.
+R-script implementing the computations described in the supplementary material section 1 on simulated data.
 
 ### commonscripts/
 
