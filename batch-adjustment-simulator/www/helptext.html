@@ -95,20 +95,20 @@ The simulation does not aim to make a data set with very realistic properties. H
 Two plots are made for each of the 3 data sets:
 <ul>
   <li><strong>Data points for one gene</strong>; The values(Y-axis) from one example gene across all the samples(X-axis) are plotted. Samples are ordered along the X-axis by batch and group. This plot illustrates how the data points changes as a result of batch adjustment, or parameter alterations for the simulation. For each group, the mean with a 95% confidence interval is plotted as a box over or to the right of the data points.</li>
-  <li><strong>A diagnostic plot using many genes</strong> is to the right and could one of the following:
+  <li><strong>A diagnostic plot using many genes</strong> is to the right and can one of the following:
   	<ul>
   		<li>
-  					Histogram of the p-values from limma for the selected group comparison. A comparison of the histogram for the batch 				adjusted data with the one for the true data may give an indication of a problem with the batch adjustment.
+  					Histogram of the p-values from limma for the selected group comparison. A comparison of the histogram for the batch adjusted data with the one for the true data may give an indication of a problem with the batch adjustment.
   			</li>
+        <li>
   			PCA plot for the two first principal components. Samples are color coded by group as the one-gene plot, numbers indicate batch.
-  			<li>
+  			
   			</li>
+        <li>
   			PVCA (principal variance component analysis) plot tries to quantify the variation due to batch effect and other effects in the data. See http://bioconductor.org/packages/release/bioc/html/pvca.html for more.
-  			<li>
+  			</li>
   			<li>
   			hclust(Hierarchical Clustering) dendrogram is another useful plot in assessing the sample correlations.  Samples are color coded by group as the one-gene plot, batch is either indicated by a number or, when many samples are clustered, by dashes ("-", one,two or three).
-  			</li>
-  				
   			</li>
 			</ul>
   	</li>
@@ -158,6 +158,9 @@ There are other related methods as well, however, ComBat is probably the most ci
 <p>A mean-centring transformation is used to adjust for the batch effect. The global mean minus the batch mean is added to the values, disregarding group information. Check the <b>&ldquo;Batch adjusted values&rdquo;</b> in the &ldquo;Plot values from one example gene as:&rdquo;-control. This will reveal the values after the mean-centring. The CI-boxes indicates that the As have a mean significantly below the Bs. This will again lead to a false conclusion, and from the p-value distribution plot, we can see that this affects many of the 1000 simulation. An additional problem is that the C group had become more similar to the A group. However this is not so apparent from the p-value distribution plot. Increase the group effect for C to 2 and observe the difference in the p-value plot for the &ldquo;True&ldquo; and the Mean-centred values for the A vs. C comparison. The mean-centring batch adjustment can both induce (A vs. B) or reduce (A vs. C) group differences as long as there are at least two batches, two groups (three need too induce) and some batch and group effects.</p>
 
 <p>A safer way to handle batch effect is to include batch labels in the statistical model. The last plot, <b>&ldquo;Batch as factor in 2-way ANOVA&rdquo;</b>, shows he CI-boxes as calculated with a 2-way ANOVA and the LSmeans estimates. The p-value distribution plot for 1000 simulations are calculated with limma where batch is included in the model.</p>
+
+Here are som other examples:
+<a href="../?adjustmethod=Mean-centring&batcheffecttype=sd&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=0&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=15&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=2&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=2&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=15&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=0&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=0&groupeffectB=2&groupeffectC=0&groupeffectfraction=1&groupeffecttype=sd&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotpvaluehist=AB&plottrue=TRUE&printbatchshift=FALSE&pvalueplotxlim=1&rngseed=139&zerocentre=FALSE">[mean-centring removes group effect]</a>
 <br/>
 
 <h4>Adjust for batch while preserving group differences</h4>
@@ -187,8 +190,13 @@ There are other related methods as well, however, ComBat is probably the most ci
 <p>The amount of false results from this procedure is related to the group-batch unbalance. This can be observed by making the experiment setup more balanced. In the <b>&ldquo;Number of samples from each group&rdquo;</b>-control, increasingly add Bs to Batch 1 and As to Batch 3 and notice that the p-value plot quickly becomes less skewed. For a fairly balanced design, the p-value plot is almost uniform. However, when surveying 10s of thousands of probes, a short list of differentially expressed genes, might all be false due to this problem.</p>
 
 <p>If the goal of the study was to find differentially expressed genes between the two groups, a safer way to handle batch effects is to include the batch labels as a factor in the statistical test. This can be done in a 2-way ANOVA analysis or with the related approach in the limma package. In the &ldquo;Plot values from one example gene as&rdquo;-control, check the <b>&ldquo;Batch as factor in 2-way ANOVA&rdquo;</b> to reveal a 4th. row of plots. The CI-boxes are calculated with a 2-way ANOVA and the LSmeans estimates. The p-value distribution plot for 1000 simulations are calculated with limma where batch is included in the model.</p>
+
+<p>
+  More examples with similar theme.
+  <a href="../?adjustmethod=removeBatchEffect&batcheffecttype=sd&batcheffectvalue1=1&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=1&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=20&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=3&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=0&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=23&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=3&countC20=0&countC3=20&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=0&groupeffectB=0&groupeffectC=0&groupeffectfraction=1&groupeffecttype=sd&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotpvaluehist=hclust&plottrue=TRUE&printbatchshift=FALSE&pvalueplotxlim=1&rngseed=139&zerocentre=FALSE"></a>
+  </p>
 <br/>
-<h4>Adjusted data set not &ldquo;batch effect free&rdquo;</h4>
+<h4>Adjusted data set is not &ldquo;batch effect free&rdquo;</h4>
 <p>
 The batch adjustment methods aim to remove the batch effect and solve a problem. But in practice the transformed data set is not batch effect free, since the adjustment relies on an estimate of the real batch effect. The difference between the estimate and the real effect, the estimation error, will be present in the adjusted data set. So, the original batch effect is replaced with a new one. Hopefully, the estimation error is smaller than the original batch effect, but it does not need to be. And even if it is small, for an unbalanced data set, it may give rise to false results, much the same way any other batch effect could. The simulation tries to explain this.
 
