@@ -1,0 +1,47 @@
+body {
+    padding-top: 1px;
+    overflow: visible;
+}
+input.shiny-bound-input { 
+ 
+	padding:3px;
+  text-align:center;
+
+}
+
+.col-sm-3 {
+  position: relative;
+  min-height: 1px;
+  padding-right: 2px;
+  padding-left: 2px;
+}
+
+.well {
+  min-height: 20px;
+  padding: 10px;
+  margin-bottom: 2px;
+  }
+  
+  .form-group {
+  margin-bottom: 1px;
+}
+
+.form-control {
+  height: 43px;
+  padding: 0px 0px;
+  font-size: 35px;
+  line-height: 0;
+ }
+ 
+ 
+ #rngseed{
+  width: 100px;
+ }
+ 
+  #ngenes{
+  width: 100px;
+ }
+ 
+ #localhostonly{
+   display: none;
+ }
