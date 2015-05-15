@@ -142,7 +142,7 @@ batchadjustplot = function(input)
   else
     par(bg= "white", fg="black", col.axis="black", col.lab="black", col.main="black", col.sub="black")
   
-   save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
+   #save(matrix_true, matrix_batcheffect, matrix_batchadjusted, sa, batchboxheight, batchboxlowmeanoffsets, input, index, file="not_in_github/image.rdata")
 
 
 
