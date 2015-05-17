@@ -39,7 +39,7 @@ First, a brief description of the two steps:
 
 <ul>
 <li>
-<strong>Step 1</strong>: The batch effects are estimated and a new data set is created where that estimate is removed (i.e a number subtracted or added to each value). The new data set is assumed to be batch effect free.
+<strong>Step 1</strong>: The batch effects are estimated and a new data set is created where that estimate is removed (i.e a number subtracted or added to each value). The new data set is assumed to be batch effect free. We call this step "batch adjustment", others might call it "batch effect removal", "correction", etc.
 </li>
 <li>
 <strong>Step 2</strong>:  A statistical test is performed on the new data set, without using the batch information. Typically, this is a comparison of the values from two study groups resulting in a observed difference and a p-value as a measure of confidence.
@@ -81,9 +81,9 @@ The simulated setting is a high throughput molecular biology experiment, for ins
 <ul>
   <li><strong>True data</strong>; This simulates the true biological values. The data points are drawn from a population with a baseline mean of 10 and a standard deviation of 1. The group effect is added as to all or a fraction of the genes in that group. This data set can be seen as a theoretical best result for a batch adjustment method (since the batch effect is not included).</li>
   <li><strong>Observed data</strong>; Created by adding the batch effect to all data point in that batch. This simulates what the data would look like for an investigator, where each data point is a combination of a group effect, batch effect and some random variation.</li>
-  <li><strong>Batch adjusted data</strong>; The matrix resulting after a batch adjustment tool has tried to estimate and remove batch effect from the observed data.  </li>
+  <li><strong>Batch adjusted data</strong>; The matrix resulting after a batch adjustment tool has tried to estimate and remove the batch effect from the observed data.  </li>
 </ul>
-The group and batch effect can either be a given number equal for all genes, or for each gene drawn from a normal distribution with mean 0 and a given sd. The former is useful for the one-gene plot, while the latter is more realistic and may produce more useful diagnostic plots. For these three data sets, using limma, a &ldquo;differentially expressed genes&rdquo;-test is performed between the groups (not including batch in the test). Lastly, batch is included in limma as a blocking factor in order to demonstrate the results from a safer one-step approach for analyzing data with batch effects.
+The group and batch effects can either be a given number equal for all genes, or for each gene drawn from a normal distribution with mean 0 and a given sd. The former is useful for the one-gene plot, while the latter is more realistic and may produce more useful diagnostic plots. For these three data sets, using limma, a &ldquo;differentially expressed genes&rdquo;-test is performed between the groups (not including batch in the test). Lastly, batch is included in limma as a blocking factor in order to demonstrate the results from a safer one-step approach for analyzing data with batch effects.
 </p>
 <p>
 The simulation does not aim to make a data set with very realistic properties. However, our simplistic approach is well suited for demonstrating the adverse effect of batch adjustment.
@@ -95,10 +95,10 @@ The simulation does not aim to make a data set with very realistic properties. H
 Two plots are made for each of the 3 data sets:
 <ul>
   <li><strong>Data points for one gene</strong>; The values(Y-axis) from one example gene across all the samples(X-axis) are plotted. Samples are ordered along the X-axis by batch and group. This plot illustrates how the data points changes as a result of batch adjustment, or parameter alterations for the simulation. For each group, the mean with a 95% confidence interval is plotted as a box over or to the right of the data points.</li>
-  <li><strong>A diagnostic plot using many genes</strong> is to the right and can one of the following:
+  <li><strong>A diagnostic plot using many genes</strong> is to the right and can be one of the following:
   	<ul>
   		<li>
-  					Histogram of the p-values from limma for the selected group comparison. A comparison of the histogram for the batch adjusted data with the one for the true data may give an indication of a problem with the batch adjustment.
+  					Histogram of the p-values calculated in limma for the selected group comparison. Huge shape differences between the histogram for the batch adjusted data with the one for the true data may indicate a problem with the batch adjustment.
   			</li>
         <li>
   			PCA plot for the two first principal components. Samples are color coded by group as the one-gene plot, numbers indicate batch.
@@ -120,11 +120,11 @@ Two plots are made for each of the 3 data sets:
 
 <h4>Batch adjustment methods</h4>
 <p>
-Three batch adjustment methods are available:
+Currently, three batch adjustment methods are available:
 <ul>
   <li><strong>Mean-centring</strong> is a simple transformation where, for each gene, the global mean minus the batch mean is added to the values. The group information is not used.</li>
   <li><strong>ComBat</strong> does a location and scale adjustment of the batches, with the help of ANOVA and empirical Bayes. There is an option to include group labels (covariates) in order to try to retain the group effects.</li>
-  <li><strong>removeBatchEffects</strong>;  Does a location adjustment of the batches based on ANOVA and can also include group labels (works as the Mean-centring without). This method from the limma package warns against doing linear modelling on the adjusted matrix (i.e the two step approach implemented in this shiny app). However, it is good at illustrating the problem.</li>
+  <li><strong>removeBatchEffect</strong>;  Does a location adjustment of the batches based on ANOVA and can also include group labels (works as the Mean-centring without). This method from the limma package warns against doing linear modelling on the adjusted matrix (i.e the step two in the two step approach implemented in this shiny app). However, it is good at illustrating the problem.</li>
 </ul>
 
 There are other related methods as well, however, ComBat is probably the most cited and the problem we are trying to illustrate most likely apply to all methods that claim to produce a batch effect free data matrix.
