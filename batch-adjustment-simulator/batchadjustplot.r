@@ -1,9 +1,18 @@
+
 library(Biobase)
 library(sva)
 library(limma)
 library(lsmeans)
 library(pvca)
 library(dendextend)
+# in addition shiny library is loaded from the server.r and ui.r
+
+# to install libs:
+# first try bioconductor:
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("limma")
+# if it is not in bioconductor try 
+# install.packages("shiny", dependencies = TRUE)
 
 makeoptionslink = function(input)
 {
