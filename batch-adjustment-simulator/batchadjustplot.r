@@ -126,9 +126,9 @@ batchadjustplot = function(input)
  
   pair=c()
   tpindexmax=0
-  if(input$plotpvaluehist %in% c("AB", "AC", "BC"))
+  if(input$plotdiagnosisplot %in% c("AB", "AC", "BC"))
   {
-  	pair = strsplit(input$plotpvaluehist, "")[[1]][1:2]
+  	pair = strsplit(input$plotdiagnosisplot, "")[[1]][1:2]
 		if(groupeffects[[pair[1]]]!=groupeffects[[pair[2]]])
 			tpindexmax = max(DEGindexes)
   }
@@ -170,11 +170,11 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
     shouldaddlegend=FALSE
     if(length(pair)>0)
       plot_pvals(matrix_true, group=sa$group, pair=pair, pvaluemax=input$pvalueplotxlim, tpindexmax=tpindexmax)
-    else if(input$plotpvaluehist=="pvca")
+    else if(input$plotdiagnosisplot=="pvca")
       plot_pvca(matrix_true, sa[,-1])
-    else if(input$plotpvaluehist=="pca")
+    else if(input$plotdiagnosisplot=="pca")
     	plot_pca(matrix_true, sa[,-1])
-    else if(input$plotpvaluehist=="hclust")
+    else if(input$plotdiagnosisplot=="hclust")
       plot_hclust(matrix_true, sa[,-1]) 
     else
       plot_blank()
@@ -191,11 +191,11 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
     shouldaddlegend=FALSE
     if(length(pair)>0)
       plot_pvals(matrix_batcheffect, group=sa$group, pair=pair, pvaluemax=input$pvalueplotxlim, tpindexmax=tpindexmax)
-  	else if(input$plotpvaluehist=="pvca")
+  	else if(input$plotdiagnosisplot=="pvca")
   	  plot_pvca(matrix_batcheffect, sa[,-1])
-  	else if(input$plotpvaluehist=="pca")
+  	else if(input$plotdiagnosisplot=="pca")
   		plot_pca(matrix_batcheffect, sa[,-1])
-  	else if(input$plotpvaluehist=="hclust")
+  	else if(input$plotdiagnosisplot=="hclust")
   	  plot_hclust(matrix_batcheffect, sa[,-1]) 
   	else
   	  plot_blank()
@@ -213,11 +213,11 @@ batchmean_adjusted =unlist(lapply(unique(sa$batch), FUN=function(x) mean(matrix_
     shouldaddlegend=FALSE
     if(length(pair)>0)
       plot_pvals(matrix_batchadjusted, group=sa$group, pair=pair, pvaluemax=input$pvalueplotxlim, tpindexmax=tpindexmax)
-  	else if(input$plotpvaluehist=="pvca")
+  	else if(input$plotdiagnosisplot=="pvca")
   	  plot_pvca(matrix_batchadjusted, sa[,-1])
-  	else if(input$plotpvaluehist=="pca")
+  	else if(input$plotdiagnosisplot=="pca")
   		plot_pca(matrix_batchadjusted, sa[,-1])
-  	else if(input$plotpvaluehist=="hclust")
+  	else if(input$plotdiagnosisplot=="hclust")
   	  plot_hclust(matrix_batchadjusted, sa[,-1])  	
   	else
   	  plot_blank()
@@ -294,12 +294,12 @@ plot_pvals = function(dm, group, pair, batch=NULL, pvaluemax=1, fdr=0.05, tpinde
  		tp = sum(limma_fdr[1:tpindexmax]<fdr)
   
   breaks = 20 * 1/pvaluemax
-  hist(limma_p, breaks=breaks, xlim=c(0,pvaluemax), 
+  hist(limma_p, breaks=breaks, xlim=c(0,pvaluemax), border="grey",
        main=paste(pair[1], "vs." , pair[2], ", ", nrow(dm), " simulations", sep=" "), xlab="P-value")
   legendstrings = c( paste("FDR<", fdr, ": ", deg, sep=""),
   									 paste("True Positive: ", tp, sep="")
   									 )
-  legend("topright", legendstrings, bty="n")
+  legend("topright", legendstrings, bty="n", cex=1.5)
   
 }
 

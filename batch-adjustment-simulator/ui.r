@@ -8,13 +8,14 @@ baselinesignal=10
 
 #initial settings
 countsdefault = matrix(0, nrow=length(batches), ncol=length(groups), dimnames=list(batches, groups))
-countsdefault[1,] = c(5,2,0)
-countsdefault[2,] = c(0,2,5)
+countsdefault[1,] = c(8,0,0)
+countsdefault[2,] = c(2,2,0)
+countsdefault[3,] = c(0,8,0)
 groupeffectdefaults = rep(0, length(groups))
 groupeffectdefaults[1:3] = c(0,0,0)
 names(groupeffectdefaults) = groups
-batcheffectdefaults = rep(0, length(batches))
-batcheffectdefaults[1:2] = c(0,2)
+batcheffectdefaults = rep(1, length(batches))
+#batcheffectdefaults[1:2] = c(0,2)
 
 
 designheader = function(group)
@@ -132,7 +133,8 @@ shinyUI(
                     c("Mean-centring" = "Mean-centring",
                       "ComBat" = "ComBat",
                     	"ComBat, no covariates" = "ComBat no covariates",
-                      "removeBatchEffect" = "removeBatchEffect"))
+                      "removeBatchEffect" = "removeBatchEffect"),
+        						selected="removeBatchEffect")
         ),
         
         # simulation input
@@ -166,14 +168,15 @@ shinyUI(
           checkboxInput("plotbatchbox", "Plot batch boxes", TRUE),
           checkboxInput("printbatchshift", "Print batch shift", FALSE),
           checkboxInput("zerocentre", "Zero-centre all values", FALSE),
-          selectInput("plotpvaluehist", "Diagnostic plots using all simulated genes",
+          selectInput("plotdiagnosisplot", "Diagnostic plot using all simulated genes",
                       c("p-val histogram A vs. B" = "AB",
                         "p-val histogram A vs. C" = "AC",
                         "p-val histogram B vs. C" = "BC",
                       	"PCA,  SLOW!" = "pca",
                         "PVCA,  SLOW!" = "pvca",
                         "hclust" = "hclust",
-                        "Do not plot" = "none"))
+                        "Do not plot" = "none"),
+          						selected="AB")
         ),
         
 
