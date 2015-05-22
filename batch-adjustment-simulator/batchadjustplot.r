@@ -130,7 +130,13 @@ batchadjustplot = function(input)
   {
   	pair = strsplit(input$plotdiagnosisplot, "")[[1]][1:2]
 		if(groupeffects[[pair[1]]]!=groupeffects[[pair[2]]])
+		{
 			tpindexmax = max(DEGindexes)
+		}else if(groupeffects[[pair[1]]] > 0 & input$groupeffecttype=="sd"){
+				tpindexmax = max(DEGindexes)
+		}
+		
+			
   }
  
   

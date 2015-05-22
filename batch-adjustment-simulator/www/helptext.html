@@ -248,7 +248,7 @@ This is the simulation used to produce Figure 1 as it appears in our article. Th
 <a name="real"></a>
 <h3>Real world examples</h3>
 <p>
-Here are a few examples from the literature where batch adjustment has been performed on mostly unbalanced data sets, and the downstream confidence in the group differences might have, to a varying degree, been exaggerated as a consequence. The group/batch design is entered into the the batch adjustment simulator and simulated data are created. Be aware that this is not a reproduction of their work since their real data is not use. Exactly what their design and parameter setting were are often not clear from reading their methods section and some reasonable assumptions are done (which might anyways be wrong).
+Here are a few examples from the literature where batch adjustment has been performed on mostly unbalanced data sets, and the downstream confidence in the group differences might have, to a varying degree, been exaggerated as a consequence. The group/batch design is entered into the the batch adjustment simulator and simulated data are created. Be aware that this is not a reproduction of their work since their real data is not used. Exactly what their design and parameter setting were, are often not clear from reading their methods section, and some reasonable assumptions are made (which might anyways be wrong).
 </p>
 <br/>
 
@@ -256,7 +256,7 @@ Here are a few examples from the literature where batch adjustment has been perf
 
 [<a href="../?adjustmethod=ComBat%20no%20covariates&batcheffectvalue1=0&batcheffectvalue2=1&batcheffectvalue3=2&blackbg=FALSE&countA1=2&countA2=2&countA3=2&countB1=2&countB2=2&countB3=2&countC1=0&countC2=0&countC3=0&groupeffectfraction=0.1&groupeffectA=1&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotdiagnosisplot=AB&plottrue=TRUE&rngseed=139">Simulation Data set 1</a>]  [<a href="http://biostatistics.oxfordjournals.org/content/8/1/118.full">Article</a>]
 <p>
-	This experiment is provided by Johnson et al. in their article describing the ComBat method. 12 samples with two treatments (groups) are equally spread across 3 batches. Covariates were not included in the ComBat adjustment. This experiment set-up is well-balanced regarding group and batch, and the p-value plot for the test on the adjusted data does not indicate a problem. However, if the number of samples from each group in the batches is reduced to 1 (from 2 now) and ComBat is run with the covariate option, then the number of genes deemed significant (FDR less than 0.05) are often somewhat optimistic.
+	This experiment is provided by Johnson et al. in their article describing the ComBat method. 12 samples with two treatments (groups) are equally spread across 3 batches. Covariates were not included in the ComBat adjustment. This experiment set-up is well-balanced regarding group and batch, and the p-value plot for the test on the adjusted data does not indicate a problem. However, if the number of samples from each group in the batches is reduced to 1 (from 2 now) and ComBat is run with the covariate option, then the number of genes deemed significant (FDR less than 0.05) are often somewhat optimistic. Obviously, this problem does not relate to any unbalance in design, but, as pointed out by the authors of adjustment methods (ComBat and PARTEK),  is probably caused by over-estimating the degrees of freedom after adjustment when batches are really small. Increasing the sample size to 3 from each group will make the problem disappear.
 </p>
 
 [<a href="../?adjustmethod=ComBat&batcheffectvalue1=-1&batcheffectvalue2=0&batcheffectvalue3=0&blackbg=FALSE&countA1=6&countA2=3&countA3=9&countB1=2&countB2=4&countB3=6&countC1=0&countC2=0&countC3=0&groupeffectA=1&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotdiagnosisplot=AB&plottrue=TRUE&rngseed=139">Simulation Data set 2</a>]
@@ -264,7 +264,7 @@ Here are a few examples from the literature where batch adjustment has been perf
  [<a href="http://biostatistics.oxfordjournals.org/content/suppl/2006/04/21/kxj037.DC1/kxj037supp.pdf">Supplementary information</a>]
  
  <p>
-	Johnson et al. provided another data set in their supplementary as a use-case where the groups were not balanced in the batches and covariates were included when ComBat were run. However, the design was only modestly unbalanced and the number of genes falsely reported as differentially expressed between the two groups, was probably small.  
+	Johnson et al. provided another data set in their supplementary as a use-case where the groups/batches were not balanced, therefore covariates were included when ComBat was run. The design was only modestly unbalanced and the number of genes falsely reported as differentially expressed between the two groups, was probably small.  
 </p>
 <br/>
 
@@ -276,7 +276,7 @@ Here are a few examples from the literature where batch adjustment has been perf
 
 <h4><i>A recurrent inactivating mutation in RHOA GTPase in angioimmunoblastic T cell lymphoma</i></h4>
 [<a href="../?adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=2&batcheffectvalue10=0&batcheffectvalue11=0&batcheffectvalue12=0&batcheffectvalue13=0&batcheffectvalue14=0&batcheffectvalue15=0&batcheffectvalue16=0&batcheffectvalue17=0&batcheffectvalue18=0&batcheffectvalue19=0&batcheffectvalue2=-2&batcheffectvalue20=0&batcheffectvalue3=0&batcheffectvalue4=0&batcheffectvalue5=0&batcheffectvalue6=0&batcheffectvalue7=0&batcheffectvalue8=0&batcheffectvalue9=0&blackbg=FALSE&countA1=9&countA10=0&countA11=0&countA12=0&countA13=0&countA14=0&countA15=0&countA16=0&countA17=0&countA18=0&countA19=0&countA2=6&countA20=0&countA3=0&countA4=0&countA5=0&countA6=0&countA7=0&countA8=0&countA9=0&countB1=0&countB10=0&countB11=0&countB12=0&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB18=0&countB19=0&countB2=5&countB20=0&countB3=0&countB4=0&countB5=0&countB6=0&countB7=0&countB8=0&countB9=0&countC1=0&countC10=0&countC11=0&countC12=0&countC13=0&countC14=0&countC15=0&countC16=0&countC17=0&countC18=0&countC19=0&countC2=0&countC20=0&countC3=0&countC4=0&countC5=0&countC6=0&countC7=0&countC8=0&countC9=0&groupeffectA=4&groupeffectB=0&groupeffectC=0&groupeffectfraction=0.1&ngenes=1000&numberofbatches=3&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=over&plotlsmeans=TRUE&plotdiagnosisplot=AB&plottrue=TRUE&pvalueplotxlim=1&rngseed=139">Simulation</a>]  [<a href="http://www.nature.com/ng/journal/v46/n4/full/ng.2916.html">Article</a>]
-<p>As an extended part of their investigation of mutations in T cell lymphoma, Yoo and colleges performed RNA sequencing of 9 tumor samples. In order to compare the tumor sample with normal samples, an older microarray data set consisting of 6 tumor samples and 5 normal samples were combined with the sequencing data. ComBat was used to adjust for the batch effects between the two platforms. There is no mention of using the covariates option in ComBat, but it seems very likely that this was done. Aligning the "one-group"-batch (9 tumor sample) to the microarray data set (6 tumor, 5 normal) with ComBat would probably have made the p-values artificially lower. However, judging from a <a href="http://www.nature.com/ng/journal/v46/n4/fig_tab/ng.2916_SF8.html">heatmap</a> presented in the supplementary information, it seems that there was a large group effect present in the microarray data already, so the p-values were decreased from "really low" to "even lower". This is reflected in the unusual low q-value cut-off chosen (0.0001), and it is unlikely that many wrong conclusions could have been drawn from this. However, the sequencing data probably contributes little to this gene list and the subsequent pathway analysis. The expression study seems to be a minor part of the article.</p>
+<p>As an extended part of their investigation of mutations in T cell lymphoma, Yoo and colleges performed RNA sequencing of 9 tumor samples. In order to compare the tumor sample with normal samples, an older microarray data set consisting of 6 tumor samples and 5 normal samples were combined with the sequencing data. ComBat was used to adjust for the batch effects between the two platforms. There is no mention of using the covariates option in ComBat, but it seems very likely that this was done. Aligning the "single-group"-batch (9 tumor sample) to the microarray data set (6 tumor, 5 normal) with ComBat would probably have made the p-values artificially lower. However, judging from a <a href="http://www.nature.com/ng/journal/v46/n4/fig_tab/ng.2916_SF8.html">heatmap</a> presented in the supplementary information, it seems that there was a large group effect present in the microarray data already, so the p-values were decreased from "really low" to "even lower". This is reflected in the unusual low q-value cut-off chosen (0.0001), and it is unlikely that many wrong conclusions could have been drawn from this. However, the sequencing data probably contributes little to their gene list and the subsequent pathway analysis. The expression study seems to be a minor part of the article.</p>
 <br/>
 
 <h4><i>Molecular Profiling of Single Sca-1+/CD34+,− Cells—The Putative Murine Lung Stem Cells</i></h4>
@@ -295,6 +295,64 @@ Here are a few examples from the literature where batch adjustment has been perf
 Towfic
 http://127.0.0.1:7574/?numberofbatches=20&adjustmethod=ComBat&batcheffecttype=sd&batcheffectvalue1=1&batcheffectvalue10=1&batcheffectvalue11=1&batcheffectvalue12=1&batcheffectvalue13=1&batcheffectvalue14=1&batcheffectvalue15=1&batcheffectvalue16=1&batcheffectvalue17=1&batcheffectvalue2=1&batcheffectvalue3=1&batcheffectvalue4=1&batcheffectvalue5=1&batcheffectvalue6=1&batcheffectvalue7=1&batcheffectvalue8=1&batcheffectvalue9=1&blackbg=FALSE&countA1=4&countA10=1&countA11=1&countA12=1&countA13=2&countA14=2&countA15=2&countA16=1&countA17=1&countA2=0&countA3=1&countA4=5&countA5=4&countA6=1&countA7=4&countA8=2&countA9=2&countB1=0&countB10=0&countB11=2&countB12=2&countB13=0&countB14=0&countB15=0&countB16=0&countB17=0&countB2=2&countB3=1&countB4=0&countB5=0&countB6=1&countB7=1&countB8=1&countB9=1&countC1=1&countC10=1&countC11=2&countC12=1&countC13=1&countC14=1&countC15=1&countC16=1&countC17=1&countC2=1&countC3=1&countC4=0&countC5=2&countC6=2&countC7=1&countC8=0&countC9=1&groupeffectA=0&groupeffectB=0&groupeffectC=0&ngenes=1000&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotdiagnosisplot=AB&plottrue=TRUE&pvalueplotxlim=1&rngseed=139
 -->
+
+<br/>
+              <a name="references"></a>
+        <h2>References</h2>
+        <br/>
+        <h4>Research articles</h4>
+        <p>
+        	Kallionpää H, Laajala E, Öling V, Härkönen T, Tillmann V, Dorshakova NV,
+Ilonen J, Lähdesmäki H, Knip M, Lahesmaa R; DIABIMMUNE Study Group. Standard of
+hygiene and immune adaptation in newborn infants. Clin Immunol. 2014
+        </p>
+        <p>
+        	Yoo HY, Sung MK, Lee SH, Kim S, Lee H, Park S, Kim SC, Lee B, Rho K, Lee JE,
+Cho KH, Kim W, Ju H, Kim J, Kim SJ, Kim WS, Lee S, Ko YH. A recurrent
+inactivating mutation in RHOA GTPase in angioimmunoblastic T cell lymphoma. Nat
+Genet. 2014 Apr;46(4):371-5.
+        </p>
+        <p>
+        	Hittinger M, Czyz ZT, Huesemann Y, Maneck M, Botteron C, Kaeufl S, Klein CA,
+Polzer B. Molecular profiling of single Sca-1+/CD34+,- cells--the putative murine
+lung stem cells. PLoS One. 2013 Dec 31;8(12):e83917.
+        </p>
+
+        <br/>
+        <h4>Methods articles and R-tools</h4>
+        <p>
+        	Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
+        </p>
+        <p>
+        	Leek JT, Johnson WE, Parker HS, Jaffe AE, Storey JD.(2012) The sva package for removing batch effects and other unwanted variation in high-throughput experiments. Bioinformatics. 2012 Mar 15;28(6):882-3.
+        </p>
+        <p>
+        	Smyth, G. K. (2004). Linear models and empirical Bayes methods for assessing differential
+expression in microarray experiments. Statistical Applications in Genetics and Molecular
+Biology, Vol. 3, No. 1, Article 3.
+http://www.statsci.org/smyth/pubs/ebayes.pdf
+        </p>
+        <p>
+        	R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL http://www.R-project.org/
+        </p>
+        <p>
+        	RStudio Team (2012). RStudio: Integrated Development for R. RStudio, Inc., Boston, MA URL http://www.rstudio.com/.
+        </p>
+        <p>
+        	Winston Chang, Joe Cheng, JJ Allaire, Yihui Xie and Jonathan McPherson (2015). shiny: Web Application Framework for R. R package
+  version 0.11.1. http://CRAN.R-project.org/package=shiny
+        </p>
+        <p>
+        	Pierre Bushel (2013). pvca: Principal Variance Component Analysis (PVCA). R package version 1.4.0.
+        </p>        
+        <p>
+          Tal Galili (2015). dendextend: Extending R's Dendrogram Functionality. R package version 0.18.3.
+  http://CRAN.R-project.org/package=dendextend
+        </p> 
+        <p>
+        	Russell V. Lenth and Maxime HervÃ© (2015). lsmeans: Least-Squares Means. R package version 2.15.
+  http://CRAN.R-project.org/package=lsmeans
+        </p>
         <br/>
         <br/>
       </div>
