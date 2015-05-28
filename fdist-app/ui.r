@@ -25,34 +25,32 @@ shinyUI(
         helpText(" helptext"),
                        
         # Experimental design
-        wellPanel(          
-          strong("Number of samples from each group (column) in the batches (rows)"),          
-          tags$textarea(id="design", rows=20, cols=20, defaultdesign)
+        wellPanel(
+          h4("Trial design"),
+          ("Group names and sample size (columns) per batch (rows)"),
+          br(),
+          tags$textarea(id="design", rows=10, cols=20, defaultdesign)
         ), # end wellPanel  
         
         # simulation input
         wellPanel(
+          h4("Random samples"),
         	fluidRow(
-        		#column( width=2, strong("Gene:"), align="right"),
-        		#column( width=3, numericInput( "indexgene", NA, 1, min=1, max=1000, step=1) ) ,
-        		
-        		column( width=2, strong("seed:"), align="right" ),
-        		column( width=3, numericInput( "rngseed", NA, 139, step=1) )
-        	)
+        		column( width=4, "Samples" ),
+        		column( width=8, numericInput( "samples", NA, 1000, min=1, max=10000, step=1) )
+        	),
+          fluidRow(
+        		column( width=4, "Seed" ),
+        		column( width=8, numericInput( "rngseed", NA, 139, min=0, step=1) )
+          ),
+          br()
         )
 
       ), # end sidebarPanel
       
       mainPanel(
-      	
-      	plotOutput("fdistplot",  height = "1000px"),
-
-      	div( htmlOutput("textoutput"), class="pull-right"),
-      	
-      	br(),br(),
-        
-    
-          
+      	div( h2("Summary"), htmlOutput("textoutput")),
+        div( h2("Q-Q plot of F-statistic"), plotOutput("fdistplot",  height = "600px") ),
       	br(),br()
 			)
       

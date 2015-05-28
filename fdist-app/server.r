@@ -1,6 +1,7 @@
 library(shiny)
 
-source("F-distribution_mod.R")
+#source("F-distribution_mod.R")
+source("F-test.R")
 
 
 shinyServer(
@@ -12,16 +13,13 @@ shinyServer(
 			fdistcalc(input)
 		})
 		
- 		output$fdistplot <- renderPlot({
- 			#fdistplot(input)
- 			fdistplot(x())
- 		})		
-		
 		output$textoutput <- renderText({ 
-			#x$a
-			#fdisttext(x)
 			fdisttext(x())
 		})
+		
+		output$fdistplot <- renderPlot({
+	    fdistplot(x())
+	  })
 		
 	}
 )

@@ -89,8 +89,8 @@ RandomData=function(N,N.genes,sd.error=1,sd.batch=1,desc=NULL) {
   obj$genenames=paste('Gene',1:obj$N.genes);
 
   obj$pheno=data.frame(cmatrix(obj$samplenames,c('Batch','Group')));
-  obj$pheno[,1]=rep(obj$batchnames,sapply(obj$N,sum));
-  obj$pheno[,2]=unlist(lapply(obj$N,function(n) rep(obj$groupnames,n)));
+  obj$pheno[,1]=as.factor(rep(obj$batchnames,sapply(obj$N,sum)));
+  obj$pheno[,2]=as.factor(unlist(lapply(obj$N,function(n) rep(obj$groupnames,n))));
 
   obj$edata.noise=rmatrix(obj$genenames,obj$samplenames,sd=obj$sd.error);
   obj$effects.batch=rmatrix(obj$genenames,obj$batchnames,sd=obj$sd.batch);

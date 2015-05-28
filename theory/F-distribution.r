@@ -24,14 +24,14 @@ options(digits=5);
 #N = UnbalancedBatches(5,50,10,full=0,multi=1);
 #N = list(c(10,10,0,0,0),c(0,10,10,0,0),c(0,0,10,10,0),c(0,0,0,10,10));
 N = list(c(10,10,0,0,0),c(0,10,10,0,0),c(0,0,10,10,0),c(0,0,0,10,10),c(10,0,0,0,10));
-dt = RandomData(N,10000,sd.batch=.5,sd.error=1);
+dt = RandomData(N,1000,sd.batch=.5,sd.error=1);
 
 ### Batch adjustment
-batch = as.factor(dt$pheno$Batch);
-group = as.factor(dt$pheno$Group);
-mod = model.matrix(~1+group,data=dt$pheno); # Model (group effect)
+batch = dt$pheno$Batch;
+group = dt$pheno$Group;
+mod = model.matrix(~1+Group,data=dt$pheno); # Model (group effect)
 mod0 = model.matrix(~1,data=dt$pheno); # Null-model (intercept)
-mod.batch = model.matrix(~batch,data=dt$pheno); # Batch effect model
+mod.batch = model.matrix(~Batch,data=dt$pheno); # Batch effect model
 dt$edata.anova = removeBatchEffect(dt$edata, batch=batch, design=mod);
 #dt$ComBat(mod); # Run ComBat and store in dt.edata.combat
 
