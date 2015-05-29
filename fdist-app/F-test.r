@@ -3,6 +3,9 @@
 ###
 
 source('../commonscripts/theoryfunctions.r');
+library(limma);
+library(MASS);
+library(sva); # Not in use unless ComBat is used
 
 options(digits=5);
 

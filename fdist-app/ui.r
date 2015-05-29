@@ -13,7 +13,7 @@ shinyUI(
   	headerPanel("Fdist app   - UNDER CONSTRUCTION -"),
     theme="bootstrap.css",
     includeCSS("www/styles.css"),
-    tags$head(tags$script(src="helperfunctions.js")),
+    #tags$head(tags$script(src="helperfunctions.js")),
     #cat("getwd", getwd()),
 
     
