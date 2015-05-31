@@ -40,6 +40,7 @@ Source code for an interactive web application which demonstrates the effects of
 ### fdist-app/
 
 Source code for an interactive R/shiny application for computing the corrected F-distribution for any group-batch design. Compares this to the F-distribution assumed by one-way ANOVA. Also runs analyses on simulated data to demonstrate the difference.
+Available at https://vegard.shinyapps.io/fdist-app.
 
 ### theory/F-distribution.r
 
