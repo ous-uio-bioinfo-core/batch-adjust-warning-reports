@@ -1,7 +1,7 @@
 library(shiny)
 
 #source("F-distribution_mod.R")
-source("F-test.R")
+source("F-test.r")
 
 
 shinyServer(

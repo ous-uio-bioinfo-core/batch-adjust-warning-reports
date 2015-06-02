@@ -28,7 +28,7 @@ makeoptionslink = function(input)
 	
 batchadjustplot = function(input)
 { 
-  print("i batchadjustplot")
+  #print("i batchadjustplot")
   set.seed(input$rngseed)
   #ngenes = 10000
   ngenes = input$ngenes
@@ -70,7 +70,7 @@ batchadjustplot = function(input)
                        FUN=function(x){  mean( matrix_true[index,sa$batch==x] ) } )
   batchboxlowmeanoffsets=batchmeans - batchboxlow
   
-  cat(input$adjustmethod)
+  #cat(input$adjustmethod)
   
   # add batch effects
   batcheffects = inputlist[grepl("batcheffectvalue", names(inputlist))]

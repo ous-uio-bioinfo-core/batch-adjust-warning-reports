@@ -2,7 +2,8 @@
 ### Compute F-distribution for batch-adjusted data with covariates
 ###
 
-source('../commonscripts/theoryfunctions.r');
+#source('../commonscripts/theoryfunctions.r');
+source('theoryfunctions.r');
 library(limma);
 library(MASS);
 library(sva); # Not in use unless ComBat is used
