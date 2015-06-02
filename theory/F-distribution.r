@@ -15,7 +15,7 @@ setwd('D:/Store/Git/batch-adjust-warning-reports/theory');
 library(limma);
 library(MASS);
 library(sva); # Not in use unless ComBat is used
-source('../commonscripts/theoryfunctions.r');
+source('../fdist-app/theoryfunctions.r');
 
 # Settings
 options(digits=5);
