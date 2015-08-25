@@ -4,9 +4,11 @@ README for the batch-adjust-warning-reports git repository.
 
 
 This git repository consists of more detailed case reports and simulations made in conjunction with, but
-not part of, the article "Methods that remove batch effects while retaining group
-differences may lead to exaggerated confidence in downstream analyses", V. Nygaard, E. A.
-Rødland, E. Hovig, manuscript in preparation.
+not part of, the article ["Methods that remove batch effects while retaining group differences may lead to exaggerated confidence in downstream analyses"](http://biostatistics.oxfordjournals.org/content/early/2015/08/13/biostatistics.kxv027), 
+Vegard Nygaard, Einar Andreas Rødland, and Eivind Hovig, 
+Biostat first published online August 13, 2015, 
+doi:10.1093/biostatistics/kxv027
+
 
 The target audience is the especially interested ones. The documents are not peer-reviewed and might be changed or updated after the publication data.
 
