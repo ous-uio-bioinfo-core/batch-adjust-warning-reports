@@ -27,7 +27,7 @@
 
 <p>This tool tries, with the use of simulations, to illustrate that adjusting for batch effects can lead to false results. 
 
-Working with our publication, &ldquo;Methods that remove batch effects while retaining group differences may lead to exaggerated confidence in downstream analyses&rdquo;, we had difficulty in making our main figure (figure 1) convey all the concepts we wanted it to, yet still being intelligible and within the space requirement. This shiny application was motivated by the realization that an interactive plot, where the user could tweak the parameters and see the result, would help in understanding our message. Another motivation was to learn shiny through a real (and hopefully) useful use-case. In short, this shiny app is an interactive version of figure 1 from our paper.</p>
+Working with our publication, <a href="http://biostatistics.oxfordjournals.org/content/early/2015/08/13/biostatistics.kxv027">&ldquo;Methods that remove batch effects while retaining group differences may lead to exaggerated confidence in downstream analyses&rdquo;</a>, we had difficulty in making our main figure (figure 1) convey all the concepts we wanted it to, yet still being intelligible and within the space requirement. This shiny application was motivated by the realization that an interactive plot, where the user could tweak the parameters and see the result, would help in understanding our message. Another motivation was to learn shiny through a real (and hopefully) useful use-case. In short, this shiny app is an interactive version of figure 1 from our paper.</p>
 <br/>
 
 
@@ -39,7 +39,7 @@ First, a brief description of the two steps:
 
 <ul>
 <li>
-<strong>Step 1</strong>: The batch effects are estimated and a new data set is created where that estimate is removed (i.e a number subtracted or added to each value). The new data set is assumed to be batch effect free. We call this step "batch adjustment", others might call it "batch effect removal", "correction", etc.
+<strong>Step 1</strong>: The batch effects are estimated and a new data set is created where that estimate is removed (i.e a number subtracted or added to each value). The new data set is assumed to be batch effect free. This step may be called "batch adjustment",  "batch effect removal", "correction" and similar.
 </li>
 <li>
 <strong>Step 2</strong>:  A statistical test is performed on the new data set, without using the batch information. Typically, this is a comparison of the values from two study groups resulting in a observed difference and a p-value as a measure of confidence.
@@ -271,7 +271,7 @@ Here are a few examples from the literature where batch adjustment has been perf
 <h4><i>Standard of hygiene and immune adaptation in newborn infants</i></h4>
 [<a href="../?adjustmethod=ComBat&batcheffectvalue1=2&batcheffectvalue2=0&batcheffectvalue3=-2&blackbg=FALSE&countA1=4&countA2=44&countA3=0&countB1=4&countB2=21&countB3=0&countC1=7&countC2=0&countC3=33&groupeffectA=0&groupeffectB=0&groupeffectC=0&plotbatchadjusted=TRUE&plotbatchaffected=TRUE&plotbatchbox=TRUE&plotCI=right&plotlsmeans=TRUE&plotdiagnosisplot=AC&plottrue=TRUE&rngseed=139">Simulation</a>]  [<a href="http://www.sciencedirect.com/science/article/pii/S1521661614002204">Article</a>]
 
-<p>Kallionpääa and colleagues tested mRNA expression in newborns from 3 different cities (groups) and found many genes that differed. Their microarray experiments were performed in batches which unfortunately had a huge overlap with the groups. To alleviate the problem, some samples were re-hybridized and ComBat was applied to adjusted for the batch effect. There are some uncertainty exactly how this was done and what the group/batch design was. It is also not stated that covariates were used when ComBat was run, however this seems likely. The simulator is set up with what we think were their design and ComBat options. However, they seem to have been running the subsequent statistical test on a slightly smaller subset of samples, but our simulator can only use the same samples as were used in the batch adjustment. No group effects are simulated in order to illustrate that they could have reached their conclusion irrespective of any real group differences. The microarray experiments and the conclusion drawn from it, seems to be an important part of their article.</p>
+<p>Kallionpääa and colleagues tested mRNA expression in newborns from 3 different cities (groups) and found many genes that differed. Their microarray experiments were performed in batches which unfortunately had a huge overlap with the groups. To alleviate the problem, some samples were re-hybridized and ComBat was applied to adjust for the batch effect. There is some uncertainty exactly how this was done and what the group/batch design was. It is also not stated that covariates were used when ComBat was run, however this seems likely. The simulator is set up with what we think were their design and ComBat options. However, they seem to have been running the subsequent statistical test on a slightly smaller subset of samples, but our simulator can only use the same samples as were used in the batch adjustment. No group effects are simulated in order to illustrate that they could have reached their conclusion irrespective of any real group differences. The microarray experiments and the conclusion drawn from it, seems to be an important part of their article.</p>
 <br/>
 
 <h4><i>A recurrent inactivating mutation in RHOA GTPase in angioimmunoblastic T cell lymphoma</i></h4>
@@ -320,6 +320,10 @@ lung stem cells. PLoS One. 2013 Dec 31;8(12):e83917.
 
         <br/>
         <h4>Methods articles and R-tools</h4>
+        <p>
+        	Nygaard V, Rødland EA, Hovig E.
+					Methods that remove batch effects while retaining group differences may lead to exaggerated confidence in downstream analyses. Biostatistics. 2015 Aug 13. pii: kxv027. [Epub ahead of print]
+        </p>
         <p>
         	Johnson, WE, Rabinovic, A, and Li, C (2007). Adjusting batch effects in microarray expression data using Empirical Bayes methods. Biostatistics 8(1):118-127.
         </p>
